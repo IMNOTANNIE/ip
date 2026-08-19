@@ -1,23 +1,55 @@
+/**
+ * Represents a task in Yuki's task list, including its description and completion status.
+ */
 public class Task {
+    /** The text describing the task. */
     protected String description;
+    /** Whether this task has been marked as completed. */
     protected boolean isDone;
 
+    /**
+     * Creates a new task that is initially not done.
+     *
+     * @param description the text describing the task
+     */
     public Task(String description) {
         this.description = description;
         this.isDone = false;
     }
 
+    /**
+     * Returns this task's description.
+     *
+     * @return the task description
+     */
     public String getDescription() {
         return description;
     }
+    /**
+     * Returns the symbol used to display this task's completion status.
+     *
+     * @return {@code "X"} if the task is done; otherwise, a space
+     */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
     }
 
+    /** Marks this task as completed. */
     public void markAsDone() {
         isDone = true;
     }
+    /** Marks this task as not completed. */
     public void markAsNotDone() {
         isDone = false;
+    }
+
+    /**
+     * Returns this task's completion status and description in list format.
+     *
+     * @return the formatted task
+     */
+    @Override
+    public String toString() {
+        return "[" + getStatusIcon() + "] " + description;
     }
 }

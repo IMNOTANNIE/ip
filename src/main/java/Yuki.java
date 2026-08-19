@@ -2,7 +2,7 @@ import java.util.Scanner;
 
 public class Yuki {
     public static void main(String[] args) {
-        String separatorLine = "❄──────❄──────❄──────❄──────❄──────❄──────❄";
+        String separatorLine = "❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄";
         String banner = "__   __     _    _ \n"
                 + "\\ \\ / /   _| | _(_)\n"
                 + " \\ V / | | | |/ / |\n"
@@ -30,7 +30,7 @@ public class Yuki {
                 System.out.println(separatorLine);
                 System.out.println("Here... These are the tasks you have:");
                 for (int i = 0; i < taskCount; i++) {
-                    System.out.println((i + 1) + ". " + "[" + taskList[i].getStatusIcon() + "] " + taskList[i].description);
+                    System.out.println((i + 1) + "." + taskList[i].toString());
                 }
                 System.out.println(separatorLine);
             } else if (command.equals("bye")) {
@@ -62,16 +62,57 @@ public class Yuki {
                     System.out.println("The task is no longer marked as done:");
                 }
 
-                System.out.println("  [" + task.getStatusIcon() + "] " + task.getDescription());
+                System.out.println(task.toString());
                 System.out.println(separatorLine);
             } else {
                 // Add and store the new task
-                taskList[taskCount] = new Task(command);
+                Task newTask = createTask(command);
+                taskList[taskCount] = newTask;
                 taskCount++;
                 System.out.println(separatorLine);
-                System.out.println("added: " + command);
+                System.out.println("Alright... I've added it.");
+                System.out.println("  " + newTask);
+                System.out.println("There are " + taskCount + " tasks now.");
                 System.out.println(separatorLine);
             }
         }
+    }
+
+    /**
+     * Creates the appropriate task object from an add-task command.
+     *
+     * @param command the command entered by the user
+     * @return the created task, or {@code null} if the command is not an add-task command
+     */
+    public static Task createTask(String command) {
+        // If it is a ToDo task
+        if (command.startsWith("todo ")) {
+            String description = command.substring(5);
+            return new ToDo(description);
+        }
+
+        // If it is a Deadline task
+        if (command.startsWith("deadline ")) {
+            String content = command.substring(9);
+            String[] parts = content.split(" /by ", 2);
+            String description = parts[0];
+            String by = parts[1];
+            return new Deadline(description, by);
+        }
+
+        // If it is an Event task
+        if (command.startsWith("event ")) {
+            String content = command.substring(6);
+            String[] firstPart = content.split(" /from ", 2);
+            String description = firstPart[0];
+
+            String[] time = firstPart[1].split(" /to ", 2);
+            String from = time[0];
+            String to = time[1];
+
+            return new Event(description, from, to);
+        }
+
+        return null;
     }
 }
