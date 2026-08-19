@@ -10,10 +10,10 @@ public class Yuki {
                 + "  |_| \\__,_|_|\\_\\_|\n";
 
         Scanner scanner = new Scanner(System.in);
-        // A list to store whatever text the user enters
-        String[] commandList = new String[100];
-        // A counter to record the number of commands stored in the list
-        int commandCount = 0;
+        // A list to store tasks
+        Task[] taskList = new Task[100];
+        // A counter to record the number of tasks
+        int taskCount = 0;
 
         // Greet the user
         System.out.println(separatorLine);
@@ -28,8 +28,9 @@ public class Yuki {
             // Print the list when the user types "list"
             if (command.equals("list")) {
                 System.out.println(separatorLine);
-                for (int i = 0; i < commandCount; i++) {
-                    System.out.println((i + 1) + ". " + commandList[i]);
+                System.out.println("Here... These are the tasks you have:");
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println((i + 1) + ". " + "[" + taskList[i].getStatusIcon() + "] " + taskList[i].description);
                 }
                 System.out.println(separatorLine);
             } else if (command.equals("bye")) {
@@ -38,10 +39,35 @@ public class Yuki {
                 System.out.println("...Goodbye.");
                 System.out.println(separatorLine);
                 break;
+            } else if (command.startsWith("mark ") || command.startsWith("unmark ")) {
+                String taskNumberText;
+                if (command.startsWith("mark ")) {
+                    taskNumberText = command.substring(5);
+                } else {
+                    taskNumberText = command.substring(7);
+                }
+                // Extract the task number from the input command
+                int taskNumber = Integer.parseInt(taskNumberText);
+                Task task = taskList[taskNumber - 1];
+
+                System.out.println(separatorLine);
+
+                if (command.startsWith("mark ")) {
+                    // mark the task as done
+                    task.markAsDone();
+                    System.out.println("It's done now... I think.");
+                } else {
+                    // mark the test as not done
+                    task.markAsNotDone();
+                    System.out.println("The task is no longer marked as done:");
+                }
+
+                System.out.println("  [" + task.getStatusIcon() + "] " + task.getDescription());
+                System.out.println(separatorLine);
             } else {
-                // Store and print the command
-                commandList[commandCount] = command;
-                commandCount++;
+                // Add and store the new task
+                taskList[taskCount] = new Task(command);
+                taskCount++;
                 System.out.println(separatorLine);
                 System.out.println("added: " + command);
                 System.out.println(separatorLine);
