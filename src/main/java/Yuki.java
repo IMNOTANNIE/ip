@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
@@ -22,10 +23,8 @@ public class Yuki {
 
         // Read commands entered by the user.
         Scanner scanner = new Scanner(System.in);
-        // Store up to 100 task objects in the order in which they were added.
-        Task[] taskList = new Task[100];
-        // Keep track of how many positions in taskList currently contain tasks.
-        int taskCount = 0;
+        // Store task objects in the order in which they were added.
+        ArrayList<Task> taskList = new ArrayList<>();
 
         // Greet the user before starting the command loop.
         System.out.println(separatorLine);
@@ -50,8 +49,8 @@ public class Yuki {
                 if (command.equals("list")) {
                     System.out.println(separatorLine);
                     System.out.println("Here... These are the tasks you have:");
-                    for (int i = 0; i < taskCount; i++) {
-                        System.out.println((i + 1) + "." + taskList[i].toString());
+                    for (int i = 0; i < taskList.size(); i++) {
+                        System.out.println((i + 1) + "." + taskList.get(i));
                     }
                     System.out.println(separatorLine);
                 } else if (command.equals("bye")) {
@@ -60,6 +59,21 @@ public class Yuki {
                     System.out.println("...Goodbye.");
                     System.out.println(separatorLine);
                     break;
+                } else if (command.startsWith("delete ") || command.equals("delete")) {
+                    if (command.equals("delete")) {
+                        // Reject the command because it does not specify a task number.
+                        throw new YukiException("The task number is missing.");
+                    }
+
+                    int taskNumber = parseTaskNumber(command.substring(7));
+                    validateTaskNumber(taskNumber, taskList.size());
+                    Task removedTask = taskList.remove(taskNumber - 1);
+
+                    System.out.println(separatorLine);
+                    System.out.println("Alright... I've removed it.");
+                    System.out.println("  " + removedTask);
+                    System.out.println("There are " + taskList.size() + " tasks now.");
+                    System.out.println(separatorLine);
                 // Handle commands that change a task's completion status.
                 } else if (command.startsWith("mark ") || command.startsWith("unmark ") || command.equals("mark")  || command.equals("unmark")) {
                     if (command.equals("mark") || command.equals("unmark")) {
@@ -72,19 +86,10 @@ public class Yuki {
                     String taskNumberText = command.startsWith("mark ")
                             ? command.substring(5).trim()
                             : command.substring(7).trim();
-                    int taskNumber;
-                    try {
-                        taskNumber = Integer.parseInt(taskNumberText);
-                    } catch (NumberFormatException e) { // Reject the command if the task number is not an integer.
-                    throw new YukiException("The task number must be a positive integer");
-                    }
+                    int taskNumber = parseTaskNumber(taskNumberText);
+                    validateTaskNumber(taskNumber, taskList.size());
 
-                    // Ensure the task number is in the valid range.
-                    if (taskNumber < 1 || taskNumber > taskCount) {
-                        throw new YukiException("I couldn't find a task with that number. " + "Please enter a number between 1 and " + taskCount + ".");
-                    }
-
-                    Task task = taskList[taskNumber - 1];
+                    Task task = taskList.get(taskNumber - 1);
                     System.out.println(separatorLine);
 
                     if (command.startsWith("mark ")) {
@@ -102,12 +107,11 @@ public class Yuki {
                 } else {
                     // Add and store a new task.
                     Task newTask = createTask(command);
-                    taskList[taskCount] = newTask;
-                    taskCount++;
+                    taskList.add(newTask);
                     System.out.println(separatorLine);
                     System.out.println("Alright... I've added it.");
                     System.out.println("  " + newTask);
-                    System.out.println("There are " + taskCount + " tasks now.");
+                    System.out.println("There are " + taskList.size() + " tasks now.");
                     System.out.println(separatorLine);
                 }
             } catch (YukiException e) {
@@ -193,5 +197,35 @@ public class Yuki {
 
         // Reject commands that do not match any supported task format.
         throw new YukiException("That command isn't familiar to me.");
+    }
+
+    /**
+     * Parses a task number entered after a command keyword.
+     *
+     * @param taskNumberText text that should contain a positive integer
+     * @return the parsed task number
+     * @throws YukiException if the text is not an integer
+     */
+    private static int parseTaskNumber(String taskNumberText) {
+        try {
+            return Integer.parseInt(taskNumberText.trim());
+        } catch (NumberFormatException e) {
+            throw new YukiException("The task number must be a positive integer");
+        }
+    }
+
+    /**
+     * Checks that a task number refers to an existing task.
+     *
+     * @param taskNumber the task number entered by the user
+     * @param taskCount the number of tasks currently stored
+     * @throws YukiException if the task number is outside the task list
+     */
+    private static void validateTaskNumber(int taskNumber, int taskCount) {
+        if (taskNumber < 1 || taskNumber > taskCount) {
+            throw new YukiException(
+                    "I couldn't find a task with that number. Please enter a number between 1 and "
+                            + taskCount + ".");
+        }
     }
 }
