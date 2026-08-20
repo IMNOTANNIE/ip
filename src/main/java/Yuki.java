@@ -45,74 +45,81 @@ public class Yuki {
                     throw new YukiException("No command was entered. Please enter a command.");
                 }
 
-                // Print all stored tasks when the user enters "list".
-                if (command.equals("list")) {
-                    System.out.println(separatorLine);
-                    System.out.println("Here... These are the tasks you have:");
-                    for (int i = 0; i < taskList.size(); i++) {
-                        System.out.println((i + 1) + "." + taskList.get(i));
+                CommandType commandType = CommandType.fromCommand(command);
+
+                switch (commandType) {
+                    case BYE -> {
+                        validateNoArguments(command, commandType);
+                        // End the program when the user enters "bye".
+                        System.out.println(separatorLine);
+                        System.out.println("...Goodbye.");
+                        System.out.println(separatorLine);
+                        return;
                     }
-                    System.out.println(separatorLine);
-                } else if (command.equals("bye")) {
-                    // End the program when the user enters "bye".
-                    System.out.println(separatorLine);
-                    System.out.println("...Goodbye.");
-                    System.out.println(separatorLine);
-                    break;
-                } else if (command.startsWith("delete ") || command.equals("delete")) {
-                    if (command.equals("delete")) {
-                        // Reject the command because it does not specify a task number.
-                        throw new YukiException("The task number is missing.");
+                    case LIST -> {
+                        validateNoArguments(command, commandType);
+                        System.out.println(separatorLine);
+                        System.out.println("Here... These are the tasks you have:");
+                        for (int i = 0; i < taskList.size(); i++) {
+                            System.out.println((i + 1) + "." + taskList.get(i));
+                        }
+                        System.out.println(separatorLine);
                     }
+                    // Handle commands that change a task's completion status.
+                    case MARK, UNMARK -> {
+                        if (command.equals(commandType.getKeyword())) {
+                            // Reject the command because it does not specify a task number.
+                            throw new YukiException("The task number is missing.");
+                        }
 
-                    int taskNumber = parseTaskNumber(command.substring(7));
-                    validateTaskNumber(taskNumber, taskList.size());
-                    Task removedTask = taskList.remove(taskNumber - 1);
+                        String taskNumberText = command.substring(
+                                commandType.getKeyword().length());
+                        int taskNumber = parseTaskNumber(taskNumberText);
+                        validateTaskNumber(taskNumber, taskList.size());
 
-                    System.out.println(separatorLine);
-                    System.out.println("Alright... I've removed it.");
-                    System.out.println("  " + removedTask);
-                    System.out.println("There are " + taskList.size() + " tasks now.");
-                    System.out.println(separatorLine);
-                // Handle commands that change a task's completion status.
-                } else if (command.startsWith("mark ") || command.startsWith("unmark ") || command.equals("mark")  || command.equals("unmark")) {
-                    if (command.equals("mark") || command.equals("unmark")) {
-                        // Reject the command because it does not specify a task number.
-                        throw new YukiException(
-                                "The task number is missing.");
+                        Task task = taskList.get(taskNumber - 1);
+                        System.out.println(separatorLine);
+
+                        if (commandType == CommandType.MARK) {
+                            // Mark the selected task as completed.
+                            task.markAsDone();
+                            System.out.println("It's done now... I think.");
+                        } else {
+                            // Mark the selected task as not completed.
+                            task.markAsNotDone();
+                            System.out.println("The task is no longer marked as done:");
+                        }
+
+                        System.out.println(task);
+                        System.out.println(separatorLine);
                     }
+                    case DELETE -> {
+                        if (command.equals(commandType.getKeyword())) {
+                            // Reject the command because it does not specify a task number.
+                            throw new YukiException("The task number is missing.");
+                        }
 
-                    // Extract the user's task number after the mark/unmark keyword.
-                    String taskNumberText = command.startsWith("mark ")
-                            ? command.substring(5).trim()
-                            : command.substring(7).trim();
-                    int taskNumber = parseTaskNumber(taskNumberText);
-                    validateTaskNumber(taskNumber, taskList.size());
+                        int taskNumber = parseTaskNumber(
+                                command.substring(commandType.getKeyword().length()));
+                        validateTaskNumber(taskNumber, taskList.size());
+                        Task removedTask = taskList.remove(taskNumber - 1);
 
-                    Task task = taskList.get(taskNumber - 1);
-                    System.out.println(separatorLine);
-
-                    if (command.startsWith("mark ")) {
-                        // Mark the selected task as completed.
-                        task.markAsDone();
-                        System.out.println("It's done now... I think.");
-                    } else {
-                        // Mark the selected task as not completed.
-                        task.markAsNotDone();
-                        System.out.println("The task is no longer marked as done:");
+                        System.out.println(separatorLine);
+                        System.out.println("Alright... I've removed it.");
+                        System.out.println("  " + removedTask);
+                        System.out.println("There are " + taskList.size() + " tasks now.");
+                        System.out.println(separatorLine);
                     }
-
-                    System.out.println(task.toString());
-                    System.out.println(separatorLine);
-                } else {
-                    // Add and store a new task.
-                    Task newTask = createTask(command);
-                    taskList.add(newTask);
-                    System.out.println(separatorLine);
-                    System.out.println("Alright... I've added it.");
-                    System.out.println("  " + newTask);
-                    System.out.println("There are " + taskList.size() + " tasks now.");
-                    System.out.println(separatorLine);
+                    case TODO, DEADLINE, EVENT -> {
+                        // Add and store a new task.
+                        Task newTask = createTask(command, commandType);
+                        taskList.add(newTask);
+                        System.out.println(separatorLine);
+                        System.out.println("Alright... I've added it.");
+                        System.out.println("  " + newTask);
+                        System.out.println("There are " + taskList.size() + " tasks now.");
+                        System.out.println(separatorLine);
+                    }
                 }
             } catch (YukiException e) {
                 // Show the error and keep the program ready for the next command.
@@ -131,7 +138,19 @@ public class Yuki {
      * @throws YukiException if the command is unknown or has an invalid format
      */
     public static Task createTask(String command) {
-        if (command.startsWith("todo ") || command.equals("todo")) {
+        return createTask(command, CommandType.fromCommand(command));
+    }
+
+    /**
+     * Creates a task after its command type has already been identified.
+     *
+     * @param command the command entered by the user
+     * @param commandType the type of task-creation command
+     * @return the task created from the command
+     * @throws YukiException if the command type cannot create a task or has an invalid format
+     */
+    private static Task createTask(String command, CommandType commandType) {
+        if (commandType == CommandType.TODO) {
             String description = command.length() > 4
                     ? command.substring(4).trim()
                     : "";
@@ -144,7 +163,7 @@ public class Yuki {
             return new ToDo(description);
         }
 
-        if (command.startsWith("deadline ")  || command.equals("deadline")) {
+        if (commandType == CommandType.DEADLINE) {
             String content = command.length() > 8
                     ? command.substring(8).trim()
                     : "";
@@ -161,7 +180,7 @@ public class Yuki {
             return new Deadline(parts[0].trim(), parts[1].trim());
         }
 
-        if (command.startsWith("event ") || command.equals("event")) {
+        if (commandType == CommandType.EVENT) {
             String content = command.length() > 5
                     ? command.substring(5).trim()
                     : "";
@@ -226,6 +245,20 @@ public class Yuki {
             throw new YukiException(
                     "I couldn't find a task with that number. Please enter a number between 1 and "
                             + taskCount + ".");
+        }
+    }
+
+    /**
+     * Checks that a command which takes no arguments contains only its keyword.
+     *
+     * @param command the complete command entered by the user
+     * @param commandType the identified command type
+     * @throws YukiException if additional text follows the command keyword
+     */
+    private static void validateNoArguments(String command, CommandType commandType) {
+        if (!command.equals(commandType.getKeyword())) {
+            throw new YukiException(
+                    "..There’s no need to add anything else to the " + commandType.getKeyword() + " command.");
         }
     }
 }
