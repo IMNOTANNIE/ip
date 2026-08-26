@@ -1,5 +1,4 @@
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Runs Yuki's command-line task manager.
@@ -11,18 +10,7 @@ public class Yuki {
      * @param args command-line arguments, which are not used by Yuki
      */
     public static void main(String[] args) {
-        // Use this line to separate different sections of the program's output.
-        String separatorLine = "❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄";
-
-        // Display this banner when the program starts.
-        String banner = "__   __     _    _ \n"
-                + "\\ \\ / /   _| | _(_)\n"
-                + " \\ V / | | | |/ / |\n"
-                + "  | || |_| |   <| |\n"
-                + "  |_| \\__,_|_|\\_\\_|\n";
-
-        // Read commands entered by the user.
-        Scanner scanner = new Scanner(System.in);
+        Ui ui = new Ui();
         Storage storage = new Storage();
         // Store task objects in the order in which they were added.
         ArrayList<Task> taskList;
@@ -31,20 +19,16 @@ public class Yuki {
         } catch (YukiException e) {
             // Keep the chatbot usable even if the saved file is damaged.
             taskList = new ArrayList<>();
-            System.out.println("I couldn't load the saved tasks. " + e.getMessage());
+            ui.showLoadingError(e.getMessage());
         }
 
         // Greet the user before starting the command loop.
-        System.out.println(separatorLine);
-        System.out.println(banner);
-        System.out.println("...Hello. This is Yuki.");
-        System.out.println("What do you need?");
-        System.out.println(separatorLine);
+        ui.showWelcome();
 
         // Continue reading commands until the input ends or the user enters "bye".
-        while (scanner.hasNextLine()) {
+        while (ui.hasNextCommand()) {
             // Remove extra spaces so commands such as " list " are recognised.
-            String command = scanner.nextLine().trim();
+            String command = ui.readCommand().trim();
 
             // Handle invalid user input without stopping the whole program.
             try {
@@ -59,19 +43,12 @@ public class Yuki {
                     case BYE -> {
                         validateNoArguments(command, commandType);
                         // End the program when the user enters "bye".
-                        System.out.println(separatorLine);
-                        System.out.println("...Goodbye.");
-                        System.out.println(separatorLine);
+                        ui.showGoodbye();
                         return;
                     }
                     case LIST -> {
                         validateNoArguments(command, commandType);
-                        System.out.println(separatorLine);
-                        System.out.println("Here... These are the tasks you have:");
-                        for (int i = 0; i < taskList.size(); i++) {
-                            System.out.println((i + 1) + "." + taskList.get(i));
-                        }
-                        System.out.println(separatorLine);
+                        ui.showTaskList(taskList);
                     }
                     // Handle commands that change a task's completion status.
                     case MARK, UNMARK -> {
@@ -86,21 +63,18 @@ public class Yuki {
                         validateTaskNumber(taskNumber, taskList.size());
 
                         Task task = taskList.get(taskNumber - 1);
-                        System.out.println(separatorLine);
 
                         if (commandType == CommandType.MARK) {
                             // Mark the selected task as completed.
                             task.markAsDone();
-                            System.out.println("It's done now... I think.");
+                            ui.showTaskStatusChanged("It's done now... I think.", task);
                         } else {
                             // Mark the selected task as not completed.
                             task.markAsNotDone();
-                            System.out.println("The task is no longer marked as done:");
+                            ui.showTaskStatusChanged("The task is no longer marked as done:", task);
                         }
 
                         storage.saveTasks(taskList);
-                        System.out.println(task);
-                        System.out.println(separatorLine);
                     }
                     case DELETE -> {
                         if (command.equals(commandType.getKeyword())) {
@@ -114,29 +88,19 @@ public class Yuki {
                         Task removedTask = taskList.remove(taskNumber - 1);
                         storage.saveTasks(taskList);
 
-                        System.out.println(separatorLine);
-                        System.out.println("Alright... I've removed it.");
-                        System.out.println("  " + removedTask);
-                        System.out.println("There are " + taskList.size() + " tasks now.");
-                        System.out.println(separatorLine);
+                        ui.showTaskDeleted(removedTask, taskList.size());
                     }
                     case TODO, DEADLINE, EVENT -> {
                         // Add and store a new task.
                         Task newTask = createTask(command, commandType);
                         taskList.add(newTask);
                         storage.saveTasks(taskList);
-                        System.out.println(separatorLine);
-                        System.out.println("Alright... I've added it.");
-                        System.out.println("  " + newTask);
-                        System.out.println("There are " + taskList.size() + " tasks now.");
-                        System.out.println(separatorLine);
+                        ui.showTaskAdded(newTask, taskList.size());
                     }
                 }
             } catch (YukiException e) {
                 // Show the error and keep the program ready for the next command.
-                System.out.println(separatorLine);
-                System.out.println("I couldn't process that. " + e.getMessage());
-                System.out.println(separatorLine);
+                ui.showError(e.getMessage());
             }
         }
     }
