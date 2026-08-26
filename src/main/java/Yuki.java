@@ -2,23 +2,35 @@
  * Runs Yuki's command-line task manager.
  */
 public class Yuki {
+    /** Handles loading and saving tasks. */
+    private final Storage storage;
+    /** Contains the tasks managed during this Yuki session. */
+    private final TaskList tasks;
+    /** Handles all interaction with the user. */
+    private final Ui ui;
+
     /**
-     * Starts Yuki and processes commands entered by the user.
-     *
-     * @param args command-line arguments, which are not used by Yuki
+     * Creates Yuki and loads saved tasks before the command loop begins.
      */
-    public static void main(String[] args) {
-        Ui ui = new Ui();
-        Storage storage = new Storage();
-        TaskList taskList;
+    public Yuki() {
+        ui = new Ui();
+        storage = new Storage();
+
+        TaskList loadedTasks;
         try {
-            taskList = new TaskList(storage.loadTasks());
+            loadedTasks = new TaskList(storage.loadTasks());
         } catch (YukiException e) {
             // Keep the chatbot usable even if the saved file is damaged.
-            taskList = new TaskList();
+            loadedTasks = new TaskList();
             ui.showLoadingError(e.getMessage());
         }
+        tasks = loadedTasks;
+    }
 
+    /**
+     * Greets the user and processes commands until the user exits or input ends.
+     */
+    public void run() {
         // Greet the user before starting the command loop.
         ui.showWelcome();
 
@@ -39,7 +51,7 @@ public class Yuki {
                     }
                     case LIST -> {
                         Parser.validateNoArguments(command, commandType);
-                        ui.showTaskList(taskList.getTasks());
+                        ui.showTaskList(tasks.getTasks());
                     }
                     // Handle commands that change a task's completion status.
                     case MARK, UNMARK -> {
@@ -47,28 +59,28 @@ public class Yuki {
                         Task task;
 
                         if (commandType == CommandType.MARK) {
-                            task = taskList.markTask(taskNumber);
+                            task = tasks.markTask(taskNumber);
                             ui.showTaskStatusChanged("It's done now... I think.", task);
                         } else {
-                            task = taskList.unmarkTask(taskNumber);
+                            task = tasks.unmarkTask(taskNumber);
                             ui.showTaskStatusChanged("The task is no longer marked as done:", task);
                         }
 
-                        storage.saveTasks(taskList.getTasks());
+                        storage.saveTasks(tasks.getTasks());
                     }
                     case DELETE -> {
                         int taskNumber = Parser.parseTaskNumber(command, commandType);
-                        Task removedTask = taskList.deleteTask(taskNumber);
-                        storage.saveTasks(taskList.getTasks());
+                        Task removedTask = tasks.deleteTask(taskNumber);
+                        storage.saveTasks(tasks.getTasks());
 
-                        ui.showTaskDeleted(removedTask, taskList.size());
+                        ui.showTaskDeleted(removedTask, tasks.size());
                     }
                     case TODO, DEADLINE, EVENT -> {
                         // Add and store a new task.
                         Task newTask = Parser.createTask(command, commandType);
-                        taskList.addTask(newTask);
-                        storage.saveTasks(taskList.getTasks());
-                        ui.showTaskAdded(newTask, taskList.size());
+                        tasks.addTask(newTask);
+                        storage.saveTasks(tasks.getTasks());
+                        ui.showTaskAdded(newTask, tasks.size());
                     }
                 }
             } catch (YukiException e) {
@@ -76,6 +88,15 @@ public class Yuki {
                 ui.showError(e.getMessage());
             }
         }
+    }
+
+    /**
+     * Starts Yuki.
+     *
+     * @param args command-line arguments, which are not used by Yuki
+     */
+    public static void main(String[] args) {
+        new Yuki().run();
     }
 
 }

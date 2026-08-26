@@ -1,12 +1,12 @@
 # UI test plan
 
-These command-driven tests protect Yuki's complete console transcript while responsibilities move out of the main class.
+These command-driven tests protect Yuki's complete console transcript while responsibilities and application lifecycle move out of `main`.
 The visible `␠` marker represents a trailing space in the banner so that whitespace remains reviewable in this file.
 
 ## Test case: Parse and execute valid commands
 
 ### Aim
-Verify that every supported command still works while TaskList owns adding, listing, marking, unmarking, and deleting tasks.
+Verify that every supported command still works when Yuki is constructed as an object and its instance `run()` method owns the session.
 
 ### Inputs
 Run with a fresh data directory. Add todo, deadline, and event tasks; list them; update a task; delete a task; then exit.
