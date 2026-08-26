@@ -32,23 +32,4 @@ public enum CommandType {
         return keyword;
     }
 
-    /**
-     * Identifies the command type from the first word of the user's input.
-     *
-     * @param command the complete command entered by the user
-     * @return the matching command type
-     * @throws YukiException if the first word is not a supported command
-     */
-    public static CommandType fromCommand(String command) {
-        String[] commandParts = command.trim().split("\\s+", 2);
-        String commandWord = commandParts[0];
-
-        for (CommandType commandType : values()) {
-            if (commandType.keyword.equals(commandWord)) {
-                return commandType;
-            }
-        }
-
-        throw new YukiException("That command isn't familiar to me.");
-    }
 }
