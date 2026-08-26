@@ -185,10 +185,11 @@ public class Yuki {
                     || parts[0].isBlank()
                     || parts[1].isBlank()) {
                 throw new YukiException(
-                        "The deadline needs both a description and a date. For example: deadline individual project /by Friday.");
+                        "The deadline needs a description, date and time. For example: "
+                                + "deadline return book /by 26/8/2026 1800.");
             }
 
-            return new Deadline(parts[0].trim(), parts[1].trim());
+            return new Deadline(parts[0].trim(), DateTimeParser.parse(parts[1].trim()));
         }
 
         if (commandType == CommandType.EVENT) {
@@ -203,26 +204,26 @@ public class Yuki {
                     || description.isBlank()
                     || firstPart[1].isBlank()) {
                 throw new YukiException(
-                        "The event needs a description, a start time and an end time. For example: event meeting /from 4pm /to 5pm.");
+                        "The event needs a description, a start time and an end time. For example: "
+                                + "event meeting /from 26/8/2026 1800 /to 26/8/2026 2000.");
             }
 
             String[] time = firstPart[1].split(" /to ", 2);
-            String from = time[0];
             // Reject the command if the /to separator or either time is missing.
             if (time.length != 2
-                    || from.isBlank()
+                    || time[0].isBlank()
                     || time[1].isBlank()) {
                 throw new YukiException(
-                        "The event needs an end time. For example: event meeting /from 4pm /to 5pm.");
+                        "The event needs an end time.");
             }
 
-            // Read the end time only after confirming that the /to part exists.
-            String to = time[1];
+            TaskDateTime from = DateTimeParser.parse(time[0].trim());
+            TaskDateTime to = DateTimeParser.parse(time[1].trim());
+            if (to.isBefore(from)) {
+                throw new YukiException("The event's end time cannot be before its start time.");
+            }
 
-            return new Event(
-                    description.trim(),
-                    from.trim(),
-                    to.trim());
+            return new Event(description.trim(), from, to);
         }
 
         // Reject commands that do not match any supported task format.

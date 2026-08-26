@@ -3,6 +3,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,11 +66,12 @@ public class Storage {
         }
         if (task instanceof Deadline deadline) {
             return String.join(" | ", "D", status,
-                    encode(task.description), encode(deadline.by));
+                    encode(task.description), encode(DateTimeParser.formatStored(deadline.by)));
         }
         if (task instanceof Event event) {
             return String.join(" | ", "E", status,
-                    encode(task.description), encode(event.from), encode(event.to));
+                    encode(task.description), encode(DateTimeParser.formatStored(event.from)),
+                    encode(DateTimeParser.formatStored(event.to)));
         }
         throw new IllegalArgumentException("Unknown task type");
     }
@@ -89,9 +91,10 @@ public class Storage {
             Task task = switch (type) {
                 case "T" -> requireFields(parts, 3, new ToDo(decode(parts[2])));
                 case "D" -> requireFields(parts, 4,
-                        new Deadline(decode(parts[2]), decode(parts[3])));
+                        new Deadline(decode(parts[2]), DateTimeParser.parseStored(decode(parts[3]))));
                 case "E" -> requireFields(parts, 5,
-                        new Event(decode(parts[2]), decode(parts[3]), decode(parts[4])));
+                        new Event(decode(parts[2]), DateTimeParser.parseStored(decode(parts[3])),
+                                DateTimeParser.parseStored(decode(parts[4]))));
                 default -> throw new IllegalArgumentException("Unknown task type");
             };
 
@@ -99,7 +102,7 @@ public class Storage {
                 task.markAsDone();
             }
             return task;
-        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
+        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException | DateTimeParseException e) {
             throw new YukiException("This saved task seems to be invalid:: " + line);
         }
     }
