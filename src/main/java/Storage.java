@@ -1,0 +1,124 @@
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Saves and loads Yuki's task list from a text file.
+ *
+ * <p>Each line uses {@code |} to separate fields. For example:
+ * {@code T | 0 | read book}.</p>
+ */
+public class Storage {
+    /** The path is relative to the project root. */
+    private static final Path DATA_FILE = Path.of("data", "userdata.txt");
+
+    /**
+     * Loads all tasks from the data file.
+     *
+     * @return the saved tasks, or an empty list if the file does not exist
+     * @throws YukiException if the file cannot be read or is invalid
+     */
+    public ArrayList<Task> loadTasks() {
+        ArrayList<Task> tasks = new ArrayList<>();
+        List<String> lines;
+
+        try {
+            lines = Files.readAllLines(DATA_FILE, StandardCharsets.UTF_8);
+        } catch (NoSuchFileException e) {
+            return tasks;
+        } catch (IOException e) {
+            throw new YukiException("I couldn't read the saved tasks: " + e.getMessage());
+        }
+
+        for (String line : lines) {
+            if (!line.isBlank()) {
+                tasks.add(parseTask(line));
+            }
+        }
+        return tasks;
+    }
+
+    /** Saves the current task list, replacing the old file contents. */
+    public void saveTasks(List<Task> tasks) {
+        try {
+            Files.createDirectories(DATA_FILE.getParent());
+            List<String> lines = new ArrayList<>();
+            for (Task task : tasks) {
+                lines.add(formatTask(task));
+            }
+            Files.write(DATA_FILE, lines, StandardCharsets.UTF_8);
+        } catch (IOException e) {
+            throw new YukiException("I couldn't save the tasks: " + e.getMessage());
+        }
+    }
+
+    /** Converts one task into a line in the data file. */
+    private String formatTask(Task task) {
+        String status = task.isDone ? "1" : "0";
+
+        if (task instanceof ToDo) {
+            return String.join(" | ", "T", status, encode(task.description));
+        }
+        if (task instanceof Deadline deadline) {
+            return String.join(" | ", "D", status,
+                    encode(task.description), encode(deadline.by));
+        }
+        if (task instanceof Event event) {
+            return String.join(" | ", "E", status,
+                    encode(task.description), encode(event.from), encode(event.to));
+        }
+        throw new IllegalArgumentException("Unknown task type");
+    }
+
+    /** Converts one saved line back into a task object. */
+    private Task parseTask(String line) {
+        String[] parts = line.trim().split("\\s*\\|\\s*", -1);
+
+        try {
+            String type = parts[0];
+            boolean isDone = switch (parts[1]) {
+                case "0" -> false;
+                case "1" -> true;
+                default -> throw new IllegalArgumentException("Invalid task status");
+            };
+
+            Task task = switch (type) {
+                case "T" -> requireFields(parts, 3, new ToDo(decode(parts[2])));
+                case "D" -> requireFields(parts, 4,
+                        new Deadline(decode(parts[2]), decode(parts[3])));
+                case "E" -> requireFields(parts, 5,
+                        new Event(decode(parts[2]), decode(parts[3]), decode(parts[4])));
+                default -> throw new IllegalArgumentException("Unknown task type");
+            };
+
+            if (isDone) {
+                task.markAsDone();
+            }
+            return task;
+        } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException e) {
+            throw new YukiException("This saved task seems to be invalid:: " + line);
+        }
+    }
+
+    /** Checks that a parsed line has the expected number of fields. */
+    private Task requireFields(String[] parts, int expected, Task task) {
+        if (parts.length != expected) {
+            throw new IllegalArgumentException("Wrong number of fields");
+        }
+        return task;
+    }
+
+    /** Escapes characters that would otherwise be mistaken for field separators. */
+    private String encode(String value) {
+        return value.replace("%", "%25").replace("|", "%7C");
+    }
+
+    /** Restores escaped characters after a task is read from the data file. */
+    private String decode(String value) {
+        return value.replace("%7C", "|").replace("%25", "%");
+    }
+}
