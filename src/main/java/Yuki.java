@@ -23,8 +23,16 @@ public class Yuki {
 
         // Read commands entered by the user.
         Scanner scanner = new Scanner(System.in);
+        Storage storage = new Storage();
         // Store task objects in the order in which they were added.
-        ArrayList<Task> taskList = new ArrayList<>();
+        ArrayList<Task> taskList;
+        try {
+            taskList = storage.loadTasks();
+        } catch (YukiException e) {
+            // Keep the chatbot usable even if the saved file is damaged.
+            taskList = new ArrayList<>();
+            System.out.println("I couldn't load the saved tasks. " + e.getMessage());
+        }
 
         // Greet the user before starting the command loop.
         System.out.println(separatorLine);
@@ -90,6 +98,7 @@ public class Yuki {
                             System.out.println("The task is no longer marked as done:");
                         }
 
+                        storage.saveTasks(taskList);
                         System.out.println(task);
                         System.out.println(separatorLine);
                     }
@@ -103,6 +112,7 @@ public class Yuki {
                                 command.substring(commandType.getKeyword().length()));
                         validateTaskNumber(taskNumber, taskList.size());
                         Task removedTask = taskList.remove(taskNumber - 1);
+                        storage.saveTasks(taskList);
 
                         System.out.println(separatorLine);
                         System.out.println("Alright... I've removed it.");
@@ -114,6 +124,7 @@ public class Yuki {
                         // Add and store a new task.
                         Task newTask = createTask(command, commandType);
                         taskList.add(newTask);
+                        storage.saveTasks(taskList);
                         System.out.println(separatorLine);
                         System.out.println("Alright... I've added it.");
                         System.out.println("  " + newTask);
