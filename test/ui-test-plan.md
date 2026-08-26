@@ -1,12 +1,12 @@
 # UI test plan
 
-These command-driven tests protect Yuki's complete console transcript while parsing is moved out of the main class.
+These command-driven tests protect Yuki's complete console transcript while responsibilities move out of the main class.
 The visible `␠` marker represents a trailing space in the banner so that whitespace remains reviewable in this file.
 
 ## Test case: Parse and execute valid commands
 
 ### Aim
-Verify that every supported command type is still recognised and produces the same user-visible result.
+Verify that every supported command still works while TaskList owns adding, listing, marking, unmarking, and deleting tasks.
 
 ### Inputs
 Run with a fresh data directory. Add todo, deadline, and event tasks; list them; update a task; delete a task; then exit.
@@ -81,7 +81,7 @@ There are 2 tasks now.
 ## Test case: Reject invalid command formats
 
 ### Aim
-Verify that parser errors remain specific and that an invalid `bye` command does not end the session.
+Verify that parser errors and TaskList's out-of-range error remain specific, and that an invalid `bye` does not end the session.
 
 ### Inputs
 Run with an empty task list and exercise empty, unknown, incomplete, malformed, out-of-range, and extra-argument commands.

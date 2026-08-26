@@ -1,5 +1,3 @@
-import java.util.ArrayList;
-
 /**
  * Runs Yuki's command-line task manager.
  */
@@ -12,13 +10,12 @@ public class Yuki {
     public static void main(String[] args) {
         Ui ui = new Ui();
         Storage storage = new Storage();
-        // Store task objects in the order in which they were added.
-        ArrayList<Task> taskList;
+        TaskList taskList;
         try {
-            taskList = storage.loadTasks();
+            taskList = new TaskList(storage.loadTasks());
         } catch (YukiException e) {
             // Keep the chatbot usable even if the saved file is damaged.
-            taskList = new ArrayList<>();
+            taskList = new TaskList();
             ui.showLoadingError(e.getMessage());
         }
 
@@ -42,40 +39,35 @@ public class Yuki {
                     }
                     case LIST -> {
                         Parser.validateNoArguments(command, commandType);
-                        ui.showTaskList(taskList);
+                        ui.showTaskList(taskList.getTasks());
                     }
                     // Handle commands that change a task's completion status.
                     case MARK, UNMARK -> {
                         int taskNumber = Parser.parseTaskNumber(command, commandType);
-                        validateTaskNumber(taskNumber, taskList.size());
-
-                        Task task = taskList.get(taskNumber - 1);
+                        Task task;
 
                         if (commandType == CommandType.MARK) {
-                            // Mark the selected task as completed.
-                            task.markAsDone();
+                            task = taskList.markTask(taskNumber);
                             ui.showTaskStatusChanged("It's done now... I think.", task);
                         } else {
-                            // Mark the selected task as not completed.
-                            task.markAsNotDone();
+                            task = taskList.unmarkTask(taskNumber);
                             ui.showTaskStatusChanged("The task is no longer marked as done:", task);
                         }
 
-                        storage.saveTasks(taskList);
+                        storage.saveTasks(taskList.getTasks());
                     }
                     case DELETE -> {
                         int taskNumber = Parser.parseTaskNumber(command, commandType);
-                        validateTaskNumber(taskNumber, taskList.size());
-                        Task removedTask = taskList.remove(taskNumber - 1);
-                        storage.saveTasks(taskList);
+                        Task removedTask = taskList.deleteTask(taskNumber);
+                        storage.saveTasks(taskList.getTasks());
 
                         ui.showTaskDeleted(removedTask, taskList.size());
                     }
                     case TODO, DEADLINE, EVENT -> {
                         // Add and store a new task.
                         Task newTask = Parser.createTask(command, commandType);
-                        taskList.add(newTask);
-                        storage.saveTasks(taskList);
+                        taskList.addTask(newTask);
+                        storage.saveTasks(taskList.getTasks());
                         ui.showTaskAdded(newTask, taskList.size());
                     }
                 }
@@ -83,21 +75,6 @@ public class Yuki {
                 // Show the error and keep the program ready for the next command.
                 ui.showError(e.getMessage());
             }
-        }
-    }
-
-    /**
-     * Checks that a task number refers to an existing task.
-     *
-     * @param taskNumber the task number entered by the user
-     * @param taskCount the number of tasks currently stored
-     * @throws YukiException if the task number is outside the task list
-     */
-    private static void validateTaskNumber(int taskNumber, int taskCount) {
-        if (taskNumber < 1 || taskNumber > taskCount) {
-            throw new YukiException(
-                    "I couldn't find a task with that number. Please enter a number between 1 and "
-                            + taskCount + ".");
         }
     }
 
