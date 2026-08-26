@@ -1,3 +1,10 @@
+package yuki.command;
+
+import yuki.storage.Storage;
+import yuki.task.Task;
+import yuki.task.TaskList;
+import yuki.ui.Ui;
+
 /**
  * Adds a task to Yuki's task list.
  */

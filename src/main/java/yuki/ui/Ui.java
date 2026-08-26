@@ -1,5 +1,9 @@
+package yuki.ui;
+
 import java.util.List;
 import java.util.Scanner;
+
+import yuki.task.Task;
 
 /**
  * Handles all command-line interactions between Yuki and the user.

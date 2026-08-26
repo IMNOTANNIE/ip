@@ -19,11 +19,11 @@ $caseRoot = Join-Path $projectRoot ('_temp\test-ui\valid-' + [guid]::NewGuid().T
 $build = Join-Path $caseRoot 'build'
 $run = Join-Path $caseRoot 'run'
 New-Item -ItemType Directory -Path $build, $run | Out-Null
-$sources = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\main\java') -Filter '*.java' | Select-Object -ExpandProperty FullName)
+$sources = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\main\java') -Recurse -File -Filter '*.java' | Select-Object -ExpandProperty FullName)
 & javac -d $build $sources
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Push-Location $run
-@('  todo read book  ', 'deadline return book /by 26/8/2026 1800', 'event project meeting /from 26/8/2026 1400 /to 26/8/2026 1600', '  list  ', 'mark 1', 'unmark 1', 'delete 2', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build Yuki | ForEach-Object { $_ -replace ' $', '␠' }
+@('  todo read book  ', 'deadline return book /by 26/8/2026 1800', 'event project meeting /from 26/8/2026 1400 /to 26/8/2026 1600', '  list  ', 'mark 1', 'unmark 1', 'delete 2', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build yuki.Yuki | ForEach-Object { $_ -replace ' $', '␠' }
 Pop-Location
 ```
 
@@ -94,11 +94,11 @@ $caseRoot = Join-Path $projectRoot ('_temp\test-ui\invalid-' + [guid]::NewGuid()
 $build = Join-Path $caseRoot 'build'
 $run = Join-Path $caseRoot 'run'
 New-Item -ItemType Directory -Path $build, $run | Out-Null
-$sources = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\main\java') -Filter '*.java' | Select-Object -ExpandProperty FullName)
+$sources = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\main\java') -Recurse -File -Filter '*.java' | Select-Object -ExpandProperty FullName)
 & javac -d $build $sources
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Push-Location $run
-@('', 'unknown', 'todo', 'deadline return book', 'event meeting /from 26/8/2026 1800', 'event backwards /from 26/8/2026 2000 /to 26/8/2026 1800', 'mark', 'mark abc', 'mark 1', 'list extra', 'bye extra', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build Yuki | ForEach-Object { $_ -replace ' $', '␠' }
+@('', 'unknown', 'todo', 'deadline return book', 'event meeting /from 26/8/2026 1800', 'event backwards /from 26/8/2026 2000 /to 26/8/2026 1800', 'mark', 'mark abc', 'mark 1', 'list extra', 'bye extra', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build yuki.Yuki | ForEach-Object { $_ -replace ' $', '␠' }
 Pop-Location
 ```
 

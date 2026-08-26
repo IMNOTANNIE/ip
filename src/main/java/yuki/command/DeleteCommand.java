@@ -1,3 +1,10 @@
+package yuki.command;
+
+import yuki.storage.Storage;
+import yuki.task.Task;
+import yuki.task.TaskList;
+import yuki.ui.Ui;
+
 /**
  * Deletes a task selected by its user-facing task number.
  */

@@ -1,3 +1,5 @@
+package yuki.task;
+
 public class ToDo extends Task {
     /**
      * Creates a to-do task.

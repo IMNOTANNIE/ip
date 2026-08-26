@@ -1,3 +1,5 @@
+package yuki.parser;
+
 /**
  * Represents a command supported by Yuki.
  */

@@ -1,5 +1,9 @@
+package yuki.task;
+
 import java.util.ArrayList;
 import java.util.List;
+
+import yuki.exception.YukiException;
 
 /**
  * Owns and manages Yuki's ordered collection of tasks.
