@@ -1,3 +1,5 @@
+package yuki.storage;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -6,6 +8,13 @@ import java.nio.file.Path;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import yuki.exception.YukiException;
+import yuki.task.Deadline;
+import yuki.task.Event;
+import yuki.task.Task;
+import yuki.task.ToDo;
+import yuki.time.DateTimeParser;
 
 /**
  * Saves and loads Yuki's task list from a text file.
@@ -59,19 +68,19 @@ public class Storage {
 
     /** Converts one task into a line in the data file. */
     private String formatTask(Task task) {
-        String status = task.isDone ? "1" : "0";
+        String status = task.isDone() ? "1" : "0";
 
         if (task instanceof ToDo) {
-            return String.join(" | ", "T", status, encode(task.description));
+            return String.join(" | ", "T", status, encode(task.getDescription()));
         }
         if (task instanceof Deadline deadline) {
             return String.join(" | ", "D", status,
-                    encode(task.description), encode(DateTimeParser.formatStored(deadline.by)));
+                    encode(task.getDescription()), encode(DateTimeParser.formatStored(deadline.getBy())));
         }
         if (task instanceof Event event) {
             return String.join(" | ", "E", status,
-                    encode(task.description), encode(DateTimeParser.formatStored(event.from)),
-                    encode(DateTimeParser.formatStored(event.to)));
+                    encode(task.getDescription()), encode(DateTimeParser.formatStored(event.getFrom())),
+                    encode(DateTimeParser.formatStored(event.getTo())));
         }
         throw new IllegalArgumentException("Unknown task type");
     }

@@ -1,3 +1,5 @@
+package yuki.exception;
+
 /**
  * Represents an invalid command or other user-input error in Yuki.
  */

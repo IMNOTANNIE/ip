@@ -1,3 +1,12 @@
+package yuki;
+
+import yuki.command.Command;
+import yuki.exception.YukiException;
+import yuki.parser.Parser;
+import yuki.storage.Storage;
+import yuki.task.TaskList;
+import yuki.ui.Ui;
+
 /**
  * Runs Yuki's command-line task manager.
  */

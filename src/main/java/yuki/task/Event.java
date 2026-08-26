@@ -1,9 +1,14 @@
+package yuki.task;
+
+import yuki.time.DateTimeParser;
+import yuki.time.TaskDateTime;
+
 /** Represents an event with a specific start and end date-time. */
 public class Event extends Task {
     /** The date and time at which this event starts. */
-    protected TaskDateTime from;
+    private final TaskDateTime from;
     /** The date and time at which this event ends. */
-    protected TaskDateTime to;
+    private final TaskDateTime to;
 
     /**
      * Creates an event task with a start and end time.
@@ -16,6 +21,24 @@ public class Event extends Task {
         super(description);
         this.from = from;
         this.to = to;
+    }
+
+    /**
+     * Returns the date and time at which this event starts.
+     *
+     * @return this event's start date and time
+     */
+    public TaskDateTime getFrom() {
+        return from;
+    }
+
+    /**
+     * Returns the date and time at which this event ends.
+     *
+     * @return this event's end date and time
+     */
+    public TaskDateTime getTo() {
+        return to;
     }
 
     /**

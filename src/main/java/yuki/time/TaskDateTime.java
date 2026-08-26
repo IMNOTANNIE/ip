@@ -1,3 +1,5 @@
+package yuki.time;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 

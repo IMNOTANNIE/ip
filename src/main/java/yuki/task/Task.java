@@ -1,11 +1,13 @@
+package yuki.task;
+
 /**
  * Represents a task in Yuki's task list, including its description and completion status.
  */
 public class Task {
     /** The text describing the task. */
-    protected String description;
+    private final String description;
     /** Whether this task has been marked as completed. */
-    protected boolean isDone;
+    private boolean isDone;
 
     /**
      * Creates a new task that is initially not done.
@@ -25,6 +27,16 @@ public class Task {
     public String getDescription() {
         return description;
     }
+
+    /**
+     * Returns whether this task has been completed.
+     *
+     * @return {@code true} if the task is done
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
     /**
      * Returns the symbol used to display this task's completion status.
      *

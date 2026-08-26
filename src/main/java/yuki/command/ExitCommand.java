@@ -1,3 +1,9 @@
+package yuki.command;
+
+import yuki.storage.Storage;
+import yuki.task.TaskList;
+import yuki.ui.Ui;
+
 /**
  * Ends the current Yuki session.
  */
