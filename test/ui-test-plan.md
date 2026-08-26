@@ -1,12 +1,12 @@
 # UI test plan
 
-These command-driven tests protect Yuki's complete console transcript while responsibilities and application lifecycle move out of `main`.
+These command-driven tests protect Yuki's complete console transcript while parsing and execution move into Command objects.
 The visible `␠` marker represents a trailing space in the banner so that whitespace remains reviewable in this file.
 
 ## Test case: Parse and execute valid commands
 
 ### Aim
-Verify that every supported command still works when Yuki is constructed as an object and its instance `run()` method owns the session.
+Verify that AddCommand, ListCommand, MarkCommand, UnmarkCommand, DeleteCommand, and ExitCommand preserve every supported command's behavior.
 
 ### Inputs
 Run with a fresh data directory. Add todo, deadline, and event tasks; list them; update a task; delete a task; then exit.
@@ -81,7 +81,7 @@ There are 2 tasks now.
 ## Test case: Reject invalid command formats
 
 ### Aim
-Verify that parser errors and TaskList's out-of-range error remain specific, and that an invalid `bye` does not end the session.
+Verify that Parser and Command execution errors remain specific, and that only a valid ExitCommand ends the session.
 
 ### Inputs
 Run with an empty task list and exercise empty, unknown, incomplete, malformed, out-of-range, and extra-argument commands.

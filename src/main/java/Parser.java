@@ -7,13 +7,39 @@ public final class Parser {
     }
 
     /**
+     * Converts a complete user command into an executable command object.
+     *
+     * @param command the complete command entered by the user
+     * @return the command object representing the user's instruction
+     * @throws YukiException if the command or its arguments are invalid
+     */
+    public static Command parse(String command) {
+        CommandType commandType = parseCommandType(command);
+
+        return switch (commandType) {
+            case TODO, DEADLINE, EVENT -> new AddCommand(createTask(command, commandType));
+            case DELETE -> new DeleteCommand(parseTaskNumber(command, commandType));
+            case MARK -> new MarkCommand(parseTaskNumber(command, commandType));
+            case UNMARK -> new UnmarkCommand(parseTaskNumber(command, commandType));
+            case LIST -> {
+                validateNoArguments(command, commandType);
+                yield new ListCommand();
+            }
+            case BYE -> {
+                validateNoArguments(command, commandType);
+                yield new ExitCommand();
+            }
+        };
+    }
+
+    /**
      * Identifies the type of a command from its first word.
      *
      * @param command the complete command entered by the user
      * @return the matching command type
      * @throws YukiException if the command is empty or unsupported
      */
-    public static CommandType parseCommandType(String command) {
+    private static CommandType parseCommandType(String command) {
         String normalizedCommand = command.trim();
         if (normalizedCommand.isEmpty()) {
             throw new YukiException("No command was entered. Please enter a command.");
@@ -39,7 +65,7 @@ public final class Parser {
      * @return the task described by the command
      * @throws YukiException if the command does not contain the required arguments
      */
-    public static Task createTask(String command, CommandType commandType) {
+    private static Task createTask(String command, CommandType commandType) {
         String normalizedCommand = command.trim();
         if (commandType == CommandType.TODO) {
             String description = normalizedCommand.length() > 4
@@ -112,7 +138,7 @@ public final class Parser {
      * @return the parsed task number
      * @throws YukiException if the task number is missing or is not an integer
      */
-    public static int parseTaskNumber(String command, CommandType commandType) {
+    private static int parseTaskNumber(String command, CommandType commandType) {
         String normalizedCommand = command.trim();
         if (normalizedCommand.equals(commandType.getKeyword())) {
             throw new YukiException("The task number is missing.");
@@ -133,7 +159,7 @@ public final class Parser {
      * @param commandType the already identified command type
      * @throws YukiException if additional text follows the command keyword
      */
-    public static void validateNoArguments(String command, CommandType commandType) {
+    private static void validateNoArguments(String command, CommandType commandType) {
         if (!command.trim().equals(commandType.getKeyword())) {
             throw new YukiException(
                     "..There’s no need to add anything else to the " + commandType.getKeyword() + " command.");
