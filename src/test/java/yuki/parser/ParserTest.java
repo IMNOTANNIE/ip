@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Test;
 
 import yuki.command.DeleteCommand;
 import yuki.command.ExitCommand;
+import yuki.command.FindCommand;
 import yuki.command.ListCommand;
 import yuki.command.MarkCommand;
 import yuki.command.UnmarkCommand;
@@ -78,6 +79,11 @@ class ParserTest {
     }
 
     @Test
+    void parse_findCommandWithoutKeyword_exceptionThrown() {
+        assertThrows(YukiException.class, () -> Parser.parse("find   "));
+    }
+
+    @Test
     void parse_eventEndBeforeStart_exceptionThrown() {
         YukiException exception = assertThrows(YukiException.class,
                 () -> Parser.parse("event meeting /from 7/8/2026 /to 6/8/2026"));
@@ -105,6 +111,7 @@ class ParserTest {
                 () -> assertInstanceOf(MarkCommand.class, Parser.parse("mark 1")),
                 () -> assertInstanceOf(UnmarkCommand.class, Parser.parse("unmark 1")),
                 () -> assertInstanceOf(DeleteCommand.class, Parser.parse("delete 1")),
+                () -> assertInstanceOf(FindCommand.class, Parser.parse("find book")),
                 () -> assertInstanceOf(ListCommand.class, Parser.parse("list")),
                 () -> assertInstanceOf(ExitCommand.class, Parser.parse("bye")),
                 () -> assertTrue(Parser.parse("bye").isExit()));

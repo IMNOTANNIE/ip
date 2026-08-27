@@ -2,6 +2,7 @@ package yuki.task;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import yuki.exception.YukiException;
 
@@ -66,6 +67,24 @@ public class TaskList {
         Task task = getTask(taskNumber);
         task.markAsNotDone();
         return task;
+    }
+
+    /**
+     * Returns tasks whose descriptions contain the keyword, ignoring letter case.
+     *
+     * @param keyword text to search for in task descriptions
+     * @return matching tasks in their original order
+     */
+    public List<Task> findTasks(String keyword) {
+        String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
+        List<Task> matchingTasks = new ArrayList<>();
+        for (Task task : tasks) {
+            String normalizedDescription = task.getDescription().toLowerCase(Locale.ROOT);
+            if (normalizedDescription.contains(normalizedKeyword)) {
+                matchingTasks.add(task);
+            }
+        }
+        return List.copyOf(matchingTasks);
     }
 
     /**

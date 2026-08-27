@@ -4,6 +4,7 @@ import yuki.command.AddCommand;
 import yuki.command.Command;
 import yuki.command.DeleteCommand;
 import yuki.command.ExitCommand;
+import yuki.command.FindCommand;
 import yuki.command.ListCommand;
 import yuki.command.MarkCommand;
 import yuki.command.UnmarkCommand;
@@ -38,6 +39,7 @@ public final class Parser {
             case DELETE -> new DeleteCommand(parseTaskNumber(command, commandType));
             case MARK -> new MarkCommand(parseTaskNumber(command, commandType));
             case UNMARK -> new UnmarkCommand(parseTaskNumber(command, commandType));
+            case FIND -> new FindCommand(parseKeyword(command, commandType));
             case LIST -> {
                 validateNoArguments(command, commandType);
                 yield new ListCommand();
@@ -168,6 +170,24 @@ public final class Parser {
         } catch (NumberFormatException e) {
             throw new YukiException("The task number must be a positive integer");
         }
+    }
+
+    /**
+     * Returns the non-blank keyword following a find command.
+     *
+     * @param command the complete command entered by the user
+     * @param commandType the already identified find command type
+     * @return the trimmed keyword or phrase to search for
+     * @throws YukiException if the keyword is missing
+     */
+    private static String parseKeyword(String command, CommandType commandType) {
+        String keyword = command.trim()
+                .substring(commandType.getKeyword().length())
+                .trim();
+        if (keyword.isBlank()) {
+            throw new YukiException("The keyword is missing. Please enter a keyword after 'find'.");
+        }
+        return keyword;
     }
 
     /**
