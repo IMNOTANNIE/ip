@@ -24,7 +24,25 @@ import yuki.time.DateTimeParser;
  */
 public class Storage {
     /** The path is relative to the project root. */
-    private static final Path DATA_FILE = Path.of("data", "userdata.txt");
+    private static final Path DEFAULT_DATA_FILE = Path.of("data", "userdata.txt");
+    /** File used by this storage instance. */
+    private final Path dataFile;
+
+    /** Creates storage that uses Yuki's default data file. */
+    public Storage() {
+        this(DEFAULT_DATA_FILE);
+    }
+
+    /**
+     * Creates storage backed by the specified file.
+     *
+     * <p>This package-private constructor lets storage tests use an isolated temporary file.</p>
+     *
+     * @param dataFile file used to load and save tasks
+     */
+    Storage(Path dataFile) {
+        this.dataFile = dataFile;
+    }
 
     /**
      * Loads all tasks from the data file.
@@ -37,7 +55,7 @@ public class Storage {
         List<String> lines;
 
         try {
-            lines = Files.readAllLines(DATA_FILE, StandardCharsets.UTF_8);
+            lines = Files.readAllLines(dataFile, StandardCharsets.UTF_8);
         } catch (NoSuchFileException e) {
             return tasks;
         } catch (IOException e) {
@@ -55,12 +73,12 @@ public class Storage {
     /** Saves the current task list, replacing the old file contents. */
     public void saveTasks(List<Task> tasks) {
         try {
-            Files.createDirectories(DATA_FILE.getParent());
+            Files.createDirectories(dataFile.getParent());
             List<String> lines = new ArrayList<>();
             for (Task task : tasks) {
                 lines.add(formatTask(task));
             }
-            Files.write(DATA_FILE, lines, StandardCharsets.UTF_8);
+            Files.write(dataFile, lines, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new YukiException("I couldn't save the tasks: " + e.getMessage());
         }
