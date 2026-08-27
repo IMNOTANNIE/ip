@@ -21,7 +21,7 @@ public class TaskList {
     /**
      * Creates a task list containing the supplied tasks.
      *
-     * @param tasks tasks loaded from storage.
+     * @param tasks Tasks loaded from storage.
      */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
@@ -35,9 +35,9 @@ public class TaskList {
     /**
      * Removes and returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user.
-     * @return the removed task.
-     * @throws YukiException if the number does not identify an existing task.
+     * @param taskNumber One-based task number entered by the user.
+     * @return The removed task.
+     * @throws YukiException If the number does not identify an existing task.
      */
     public Task deleteTask(int taskNumber) {
         return tasks.remove(toListIndex(taskNumber));
@@ -46,9 +46,9 @@ public class TaskList {
     /**
      * Marks and returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user.
-     * @return the task that was marked as done.
-     * @throws YukiException if the number does not identify an existing task.
+     * @param taskNumber One-based task number entered by the user.
+     * @return The task that was marked as done.
+     * @throws YukiException If the number does not identify an existing task.
      */
     public Task markTask(int taskNumber) {
         Task task = getTask(taskNumber);
@@ -59,9 +59,9 @@ public class TaskList {
     /**
      * Unmarks and returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user.
-     * @return the task that was marked as not done.
-     * @throws YukiException if the number does not identify an existing task.
+     * @param taskNumber One-based task number entered by the user.
+     * @return The task that was marked as not done.
+     * @throws YukiException If the number does not identify an existing task.
      */
     public Task unmarkTask(int taskNumber) {
         Task task = getTask(taskNumber);
@@ -72,8 +72,8 @@ public class TaskList {
     /**
      * Returns tasks whose descriptions contain the keyword, ignoring letter case.
      *
-     * @param keyword text to search for in task descriptions
-     * @return matching tasks in their original order
+     * @param keyword Text to search for in task descriptions.
+     * @return Matching tasks in their original order.
      */
     public List<Task> findTasks(String keyword) {
         String normalizedKeyword = keyword.toLowerCase(Locale.ROOT);
@@ -90,9 +90,9 @@ public class TaskList {
     /**
      * Returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user.
-     * @return the selected task.
-     * @throws YukiException if the number does not identify an existing task.
+     * @param taskNumber One-based task number entered by the user.
+     * @return The selected task.
+     * @throws YukiException If the number does not identify an existing task.
      */
     public Task getTask(int taskNumber) {
         return tasks.get(toListIndex(taskNumber));
@@ -106,7 +106,7 @@ public class TaskList {
     /**
      * Returns an unmodifiable snapshot for displaying or saving the tasks.
      *
-     * @return the tasks in their current order.
+     * @return The tasks in their current order.
      */
     public List<Task> getTasks() {
         return List.copyOf(tasks);

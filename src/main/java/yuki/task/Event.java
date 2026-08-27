@@ -28,7 +28,7 @@ public class Event extends Task {
     /**
      * Returns the date and time at which this event starts.
      *
-     * @return this event's start date and time
+     * @return This event's start date and time.
      */
     public TaskDateTime getFrom() {
         return from;
@@ -37,7 +37,7 @@ public class Event extends Task {
     /**
      * Returns the date and time at which this event ends.
      *
-     * @return this event's end date and time
+     * @return This event's end date and time.
      */
     public TaskDateTime getTo() {
         return to;
@@ -46,7 +46,7 @@ public class Event extends Task {
     /**
      * Returns this event task in the format used in the task list.
      *
-     * @return the formatted event task
+     * @return The formatted event task.
      */
     @Override
     public String toString() {

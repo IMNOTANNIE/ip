@@ -38,8 +38,8 @@ public final class DateTimeParser {
     /**
      * Parses a date-time.
      *
-     * @param text date or date-time entered by the user.
-     * @return a parsed date-time, or the unchanged text if no date format matches.
+     * @param text Date or date-time entered by the user.
+     * @return A parsed date-time, or the unchanged text if no date format matches.
      */
     public static TaskDateTime parse(String text) {
         try {

@@ -24,7 +24,7 @@ public class Deadline extends Task {
     /**
      * Returns the date and time by which this task should be completed.
      *
-     * @return this deadline's due date and time
+     * @return This deadline's due date and time.
      */
     public TaskDateTime getBy() {
         return by;
@@ -33,7 +33,7 @@ public class Deadline extends Task {
     /**
      * Returns this deadline task in the format used in the task list.
      *
-     * @return the formatted deadline task
+     * @return The formatted deadline task.
      */
     @Override
     public String toString() {

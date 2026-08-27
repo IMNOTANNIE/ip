@@ -16,7 +16,7 @@ public class ToDo extends Task {
     /**
      * Returns this to-do task in the format used in the task list.
      *
-     * @return the formatted to-do task
+     * @return The formatted to-do task.
      */
     @Override
     public String toString() {

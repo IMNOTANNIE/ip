@@ -20,7 +20,7 @@ public abstract class Command {
     /**
      * Returns whether Yuki should stop after executing this command.
      *
-     * @return {@code true} only for a command that exits Yuki
+     * @return The value {@code true} only for a command that exits Yuki.
      */
     public boolean isExit() {
         return false;

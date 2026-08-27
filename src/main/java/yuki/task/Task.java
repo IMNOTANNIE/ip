@@ -22,7 +22,7 @@ public class Task {
     /**
      * Returns this task's description.
      *
-     * @return the task description
+     * @return The task description.
      */
     public String getDescription() {
         return description;
@@ -31,7 +31,7 @@ public class Task {
     /**
      * Returns whether this task has been completed.
      *
-     * @return {@code true} if the task is done
+     * @return The value {@code true} if the task is done.
      */
     public boolean isDone() {
         return isDone;
@@ -40,7 +40,7 @@ public class Task {
     /**
      * Returns the symbol used to display this task's completion status.
      *
-     * @return {@code "X"} if the task is done; otherwise, a space
+     * @return The value {@code "X"} if the task is done; otherwise, a space.
      */
     public String getStatusIcon() {
         return (isDone ? "X" : " "); // mark done task with X
@@ -58,7 +58,7 @@ public class Task {
     /**
      * Returns this task's completion status and description in list format.
      *
-     * @return the formatted task
+     * @return The formatted task.
      */
     @Override
     public String toString() {

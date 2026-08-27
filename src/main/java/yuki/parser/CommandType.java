@@ -29,7 +29,7 @@ public enum CommandType {
     /**
      * Returns the word used to enter this command.
      *
-     * @return this command's keyword
+     * @return This command's keyword.
      */
     public String getKeyword() {
         return keyword;

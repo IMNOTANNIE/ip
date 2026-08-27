@@ -47,8 +47,8 @@ public class Storage {
     /**
      * Loads all tasks from the data file.
      *
-     * @return the saved tasks, or an empty list if the file does not exist
-     * @throws YukiException if the file cannot be read or is invalid
+     * @return The saved tasks, or an empty list if the file does not exist.
+     * @throws YukiException If the file cannot be read or is invalid.
      */
     public ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();
