@@ -3,7 +3,9 @@ package yuki.task;
 import yuki.time.DateTimeParser;
 import yuki.time.TaskDateTime;
 
-/** Represents a task that must be completed by a specific date and time. */
+/**
+ * Represents a task that must be completed by a specific date and time.
+ */
 public class Deadline extends Task {
     /** The date and time by which this task should be completed. */
     private final TaskDateTime by;
@@ -11,8 +13,8 @@ public class Deadline extends Task {
     /**
      * Creates a deadline task.
      *
-     * @param description the text describing the task
-     * @param by the date and time by which the task should be completed
+     * @param description The text describing the task.
+     * @param by The date and time by which the task should be completed.
      */
     public Deadline(String description, TaskDateTime by) {
         super(description);

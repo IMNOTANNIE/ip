@@ -26,7 +26,7 @@ public final class Parser {
     /**
      * Converts a complete user command into an executable command object.
      *
-     * @param command the complete command entered by the user
+     * @param command The complete command entered by the user.
      * @return the command object representing the user's instruction
      * @throws YukiException if the command or its arguments are invalid
      */
@@ -52,7 +52,7 @@ public final class Parser {
     /**
      * Identifies the type of a command from its first word.
      *
-     * @param command the complete command entered by the user
+     * @param command The complete command entered by the user.
      * @return the matching command type
      * @throws YukiException if the command is empty or unsupported
      */
@@ -77,8 +77,8 @@ public final class Parser {
     /**
      * Creates a task from a task-creation command.
      *
-     * @param command the complete command entered by the user
-     * @param commandType the already identified command type
+     * @param command The complete command entered by the user.
+     * @param commandType The already identified command type.
      * @return the task described by the command
      * @throws YukiException if the command does not contain the required arguments
      */
@@ -150,8 +150,8 @@ public final class Parser {
     /**
      * Parses the task number following a command keyword.
      *
-     * @param command the complete command entered by the user
-     * @param commandType the already identified command type
+     * @param command The complete command entered by the user.
+     * @param commandType The already identified command type.
      * @return the parsed task number
      * @throws YukiException if the task number is missing or is not an integer
      */
@@ -172,8 +172,8 @@ public final class Parser {
     /**
      * Checks that a command which takes no arguments contains only its keyword.
      *
-     * @param command the complete command entered by the user
-     * @param commandType the already identified command type
+     * @param command The complete command entered by the user.
+     * @param commandType The already identified command type.
      * @throws YukiException if additional text follows the command keyword
      */
     private static void validateNoArguments(String command, CommandType commandType) {

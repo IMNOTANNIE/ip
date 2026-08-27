@@ -60,7 +60,7 @@ public class Yuki {
     /**
      * Starts Yuki.
      *
-     * @param args command-line arguments, which are not used by Yuki
+     * @param args Command-line arguments, which are not used by Yuki.
      */
     public static void main(String[] args) {
         new Yuki().run();

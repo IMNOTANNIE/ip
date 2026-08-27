@@ -3,7 +3,9 @@ package yuki.task;
 import yuki.time.DateTimeParser;
 import yuki.time.TaskDateTime;
 
-/** Represents an event with a specific start and end date-time. */
+/**
+ * Represents an event with a specific start and end date-time.
+ */
 public class Event extends Task {
     /** The date and time at which this event starts. */
     private final TaskDateTime from;
@@ -13,9 +15,9 @@ public class Event extends Task {
     /**
      * Creates an event task with a start and end time.
      *
-     * @param description the text describing the event
-     * @param from the event's start date or time
-     * @param to the event's end date or time
+     * @param description The text describing the event.
+     * @param from The event's start date or time.
+     * @param to The event's end date or time.
      */
     public Event(String description, TaskDateTime from, TaskDateTime to) {
         super(description);

@@ -38,7 +38,7 @@ public class Storage {
      *
      * <p>This package-private constructor lets storage tests use an isolated temporary file.</p>
      *
-     * @param dataFile file used to load and save tasks
+     * @param dataFile File used to load and save tasks.
      */
     Storage(Path dataFile) {
         this.dataFile = dataFile;

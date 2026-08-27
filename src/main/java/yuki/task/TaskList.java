@@ -20,7 +20,7 @@ public class TaskList {
     /**
      * Creates a task list containing the supplied tasks.
      *
-     * @param tasks tasks loaded from storage
+     * @param tasks Tasks loaded from storage.
      */
     public TaskList(List<Task> tasks) {
         this.tasks = new ArrayList<>(tasks);
@@ -34,7 +34,7 @@ public class TaskList {
     /**
      * Removes and returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user
+     * @param taskNumber One-based task number entered by the user.
      * @return the removed task
      * @throws YukiException if the number does not identify an existing task
      */
@@ -45,7 +45,7 @@ public class TaskList {
     /**
      * Marks and returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user
+     * @param taskNumber One-based task number entered by the user.
      * @return the task that was marked as done
      * @throws YukiException if the number does not identify an existing task
      */
@@ -58,7 +58,7 @@ public class TaskList {
     /**
      * Unmarks and returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user
+     * @param taskNumber One-based task number entered by the user.
      * @return the task that was marked as not done
      * @throws YukiException if the number does not identify an existing task
      */
@@ -71,7 +71,7 @@ public class TaskList {
     /**
      * Returns the task at a user-facing task number.
      *
-     * @param taskNumber one-based task number entered by the user
+     * @param taskNumber One-based task number entered by the user.
      * @return the selected task
      * @throws YukiException if the number does not identify an existing task
      */
