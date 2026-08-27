@@ -11,7 +11,8 @@ import yuki.task.Task;
 public class Ui {
     /** Separates individual responses so they are easier to read. */
     private static final String SEPARATOR_LINE =
-            "--------------------------------------------------------------------------------------------------------------------";
+            "----------------------------------------------------------"
+                    + "----------------------------------------------------------";
     /** The banner displayed when Yuki starts. */
     private static final String BANNER = "__   __     _    _ \n"
             + "\\ \\ / /   _| | _(_)\n"
@@ -19,6 +20,7 @@ public class Ui {
             + "  | || |_| |   <| |\n"
             + "  |_| \\__,_|_|\\_\\_|\n";
 
+    /** Reads commands entered through standard input. */
     private final Scanner scanner;
 
     /** Creates a UI that reads commands from standard input. */
