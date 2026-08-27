@@ -40,6 +40,8 @@ Maintain JUnit tests for approximately the top 50% highest-value methods, priori
 
 ## Git
 
-Use lightweight tags unless the user requests an annotated tag.
-When proposing or creating a commit message, include enough detail to explain the rationale for the change.
-Do not commit or push unless explicitly asked.
+All future commits and proposed commit messages must follow the `cs2103t-git-standard` skill and its SE-EDU Git conventions. Before drafting, reviewing, or creating a commit, agents must read that skill's current `SKILL.md` and `references/rules.md`, then inspect the repository instructions, Git status, relevant diff, recent commit conventions, and any supplied issue context.
+
+Use a clear imperative subject that starts with a capital letter, aims for at most 50 characters, never exceeds 72 characters, and does not end with a period. Give every non-trivial commit a body separated from the subject by one blank line; wrap body lines at 72 characters and explain what changed and why. Keep each commit coherent, propose splitting unrelated changes, and never invent motivation, issue numbers, test results, or behavior not supported by the diff and user context.
+
+Use lightweight tags unless the user requests an annotated tag. Do not stage, commit, or push unless explicitly asked. After an authorized Git operation, verify the resulting status and history and report exactly what was created.
