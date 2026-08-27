@@ -11,7 +11,7 @@ import yuki.task.Task;
 public class Ui {
     /** Separates individual responses so they are easier to read. */
     private static final String SEPARATOR_LINE =
-            "❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄";
+            "--------------------------------------------------------------------------------------------------------------------";
     /** The banner displayed when Yuki starts. */
     private static final String BANNER = "__   __     _    _ \n"
             + "\\ \\ / /   _| | _(_)\n"
