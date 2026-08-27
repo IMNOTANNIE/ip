@@ -24,20 +24,22 @@ public final class DateTimeParser {
     private static final DateTimeFormatter DATE_INPUT_FORMAT = DateTimeFormatter
             .ofPattern("d/M/uuuu")
             .withResolverStyle(ResolverStyle.STRICT);
-    /** The friendly formats shown in Yuki's replies. */
+    /** The friendly date-only format shown in Yuki's replies. */
     private static final DateTimeFormatter DATE_DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("MMM d yyyy", Locale.ENGLISH);
+    /** The friendly date-time format shown in Yuki's replies. */
     private static final DateTimeFormatter DATE_TIME_DISPLAY_FORMAT =
             DateTimeFormatter.ofPattern("MMM d yyyy HH:mm", Locale.ENGLISH);
 
+    /** Prevents creation of this stateless utility class. */
     private DateTimeParser() {
     }
 
     /**
      * Parses a date-time.
      *
-     * @param text date or date-time entered by the user
-     * @return a parsed date-time, or the unchanged text if no date format matches
+     * @param text date or date-time entered by the user.
+     * @return a parsed date-time, or the unchanged text if no date format matches.
      */
     public static TaskDateTime parse(String text) {
         try {

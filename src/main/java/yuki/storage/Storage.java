@@ -38,7 +38,7 @@ public class Storage {
      *
      * <p>This package-private constructor lets storage tests use an isolated temporary file.</p>
      *
-     * @param dataFile file used to load and save tasks
+     * @param dataFile file used to load and save tasks.
      */
     Storage(Path dataFile) {
         this.dataFile = dataFile;
@@ -47,8 +47,8 @@ public class Storage {
     /**
      * Loads all tasks from the data file.
      *
-     * @return the saved tasks, or an empty list if the file does not exist
-     * @throws YukiException if the file cannot be read or is invalid
+     * @return the saved tasks, or an empty list if the file does not exist.
+     * @throws YukiException if the file cannot be read or is invalid.
      */
     public ArrayList<Task> loadTasks() {
         ArrayList<Task> tasks = new ArrayList<>();

@@ -13,9 +13,9 @@ public class Event extends Task {
     /**
      * Creates an event task with a start and end time.
      *
-     * @param description the text describing the event
-     * @param from the event's start date or time
-     * @param to the event's end date or time
+     * @param description the text describing the event.
+     * @param from the event's start date or time.
+     * @param to the event's end date or time.
      */
     public Event(String description, TaskDateTime from, TaskDateTime to) {
         super(description);
@@ -26,7 +26,7 @@ public class Event extends Task {
     /**
      * Returns the date and time at which this event starts.
      *
-     * @return this event's start date and time
+     * @return this event's start date and time.
      */
     public TaskDateTime getFrom() {
         return from;
@@ -35,7 +35,7 @@ public class Event extends Task {
     /**
      * Returns the date and time at which this event ends.
      *
-     * @return this event's end date and time
+     * @return this event's end date and time.
      */
     public TaskDateTime getTo() {
         return to;
@@ -44,7 +44,7 @@ public class Event extends Task {
     /**
      * Returns this event task in the format used in the task list.
      *
-     * @return the formatted event task
+     * @return the formatted event task.
      */
     @Override
     public String toString() {

@@ -40,7 +40,6 @@ public class Yuki {
      * Greets the user and processes commands until the user exits or input ends.
      */
     public void run() {
-        // Greet the user before starting the command loop.
         ui.showWelcome();
 
         boolean isExit = false;
@@ -51,7 +50,6 @@ public class Yuki {
                 command.execute(tasks, ui, storage);
                 isExit = command.isExit();
             } catch (YukiException e) {
-                // Show the error and keep the program ready for the next command.
                 ui.showError(e.getMessage());
             }
         }
@@ -60,7 +58,7 @@ public class Yuki {
     /**
      * Starts Yuki.
      *
-     * @param args command-line arguments, which are not used by Yuki
+     * @param args command-line arguments, which are not used by Yuki.
      */
     public static void main(String[] args) {
         new Yuki().run();
