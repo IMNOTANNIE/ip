@@ -52,12 +52,12 @@ public class Ui {
 
     /** Displays all tasks in their current order. */
     public void showTaskList(List<Task> tasks) {
-        System.out.println(SEPARATOR_LINE);
-        System.out.println("Here... These are the tasks you have:");
-        for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.get(i));
-        }
-        System.out.println(SEPARATOR_LINE);
+        showNumberedTaskList("Here... These are the tasks you have:", tasks);
+    }
+
+    /** Displays tasks whose descriptions matched a find command. */
+    public void showMatchingTasks(List<Task> tasks) {
+        showNumberedTaskList("Here... These are the matching tasks in your list:", tasks);
     }
 
     /** Displays a task after its completion status has changed. */
@@ -89,6 +89,16 @@ public class Ui {
     /** Displays an error caused while loading saved tasks. */
     public void showLoadingError(String message) {
         System.out.println("I couldn't load the saved tasks. " + message);
+    }
+
+    /** Displays a heading and a one-based numbered list of tasks. */
+    private void showNumberedTaskList(String heading, List<Task> tasks) {
+        System.out.println(SEPARATOR_LINE);
+        System.out.println(heading);
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println((i + 1) + "." + tasks.get(i));
+        }
+        System.out.println(SEPARATOR_LINE);
     }
 
     /** Displays one response surrounded by separator lines. */

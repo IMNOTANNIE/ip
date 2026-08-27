@@ -67,6 +67,30 @@ class TaskListTest {
     }
 
     @Test
+    void findTasks_keywordWithDifferentCase_matchingDescriptionsReturnedInOrder() {
+        Task first = new ToDo("read book");
+        Task second = new ToDo("buy groceries");
+        Task third = new ToDo("return Book");
+        TaskList tasks = new TaskList(List.of(first, second, third));
+
+        List<Task> matches = tasks.findTasks("BOOK");
+
+        assertAll(
+                () -> assertEquals(2, matches.size()),
+                () -> assertSame(first, matches.get(0)),
+                () -> assertSame(third, matches.get(1)));
+    }
+
+    @Test
+    void findTasks_noMatchingDescription_emptyListReturned() {
+        TaskList tasks = new TaskList(List.of(new ToDo("read book")));
+
+        List<Task> matches = tasks.findTasks("movie");
+
+        assertTrue(matches.isEmpty());
+    }
+
+    @Test
     void getTasks_listLaterChanged_snapshotRemainsUnmodifiableAndUnchanged() {
         TaskList tasks = new TaskList(List.of(new ToDo("first")));
         List<Task> snapshot = tasks.getTasks();
