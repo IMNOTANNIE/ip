@@ -1,10 +1,13 @@
 package yuki.task;
 
+/**
+ * Represents a task without a deadline or scheduled time.
+ */
 public class ToDo extends Task {
     /**
      * Creates a to-do task.
      *
-     * @param description the text describing the task
+     * @param description The text describing the task.
      */
     public ToDo(String description) {
         super(description);

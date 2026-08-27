@@ -3,7 +3,9 @@ package yuki.time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-/** Holds either a parsed date, a parsed date-time, or the user's original text. */
+/**
+ * Holds either a parsed date, a parsed date-time, or the user's original text.
+ */
 public class TaskDateTime {
     private final LocalDate date;
     private final LocalDateTime dateTime;

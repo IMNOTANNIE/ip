@@ -9,7 +9,9 @@ import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
 
-/** Parses and formats all dates and times used by Yuki. */
+/**
+ * Parses and formats all dates and times used by Yuki.
+ */
 public final class DateTimeParser {
     /** The date-time format accepted in commands, such as {@code 2/12/2019 1800}. */
     private static final DateTimeFormatter DATE_TIME_INPUT_FORMAT = new DateTimeFormatterBuilder()
@@ -36,7 +38,7 @@ public final class DateTimeParser {
     /**
      * Parses a date-time.
      *
-     * @param text date or date-time entered by the user
+     * @param text Date or date-time entered by the user.
      * @return a parsed date-time, or the unchanged text if no date format matches
      */
     public static TaskDateTime parse(String text) {

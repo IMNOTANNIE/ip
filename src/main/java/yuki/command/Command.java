@@ -11,9 +11,9 @@ public abstract class Command {
     /**
      * Performs this command using Yuki's task list and supporting components.
      *
-     * @param tasks tasks managed by Yuki
-     * @param ui user interface used to display the result
-     * @param storage storage used to persist changes
+     * @param tasks Tasks managed by Yuki.
+     * @param ui User interface used to display the result.
+     * @param storage Storage used to persist changes.
      */
     public abstract void execute(TaskList tasks, Ui ui, Storage storage);
 

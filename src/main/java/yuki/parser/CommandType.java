@@ -19,7 +19,7 @@ public enum CommandType {
     /**
      * Creates a command type with its user-facing keyword.
      *
-     * @param keyword the word used to enter this command
+     * @param keyword The word used to enter this command.
      */
     CommandType(String keyword) {
         this.keyword = keyword;
