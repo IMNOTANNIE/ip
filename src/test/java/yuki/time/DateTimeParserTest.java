@@ -18,9 +18,8 @@ class DateTimeParserTest {
         TaskDateTime colonTime = DateTimeParser.parse("2/12/2026 18:00");
 
         LocalDateTime expected = LocalDateTime.of(2026, 12, 2, 18, 0);
-        assertAll(
-                () -> assertEquals(expected, compactTime.getDateTime()),
-                () -> assertEquals(expected, colonTime.getDateTime()));
+        assertAll(() -> assertEquals(expected, compactTime.getDateTime()), () ->
+                assertEquals(expected, colonTime.getDateTime()));
     }
 
     @Test
@@ -29,28 +28,25 @@ class DateTimeParserTest {
         TaskDateTime isoFormat = DateTimeParser.parse("2026-12-02");
 
         LocalDate expected = LocalDate.of(2026, 12, 2);
-        assertAll(
-                () -> assertEquals(expected, localFormat.getDate()),
-                () -> assertEquals(expected, isoFormat.getDate()));
+        assertAll(() -> assertEquals(expected, localFormat.getDate()), () ->
+                assertEquals(expected, isoFormat.getDate()));
     }
 
     @Test
     void parse_unrecognizedDate_originalTextReturned() {
         TaskDateTime value = DateTimeParser.parse("next Friday evening");
 
-        assertAll(
-                () -> assertFalse(value.hasDateTime()),
-                () -> assertFalse(value.hasDateOnly()),
-                () -> assertEquals("next Friday evening", value.getText()));
+        assertAll(() -> assertFalse(value.hasDateTime()), () ->
+                assertFalse(value.hasDateOnly()), () ->
+                assertEquals("next Friday evening", value.getText()));
     }
 
     @Test
     void format_parsedValues_friendlyTextReturned() {
-        assertAll(
-                () -> assertEquals("Dec 2 2026 18:00",
+        assertAll(() -> assertEquals("Dec 2 2026 18:00",
                         DateTimeParser.format(TaskDateTime.of(
-                                LocalDateTime.of(2026, 12, 2, 18, 0)))),
-                () -> assertEquals("Dec 2 2026",
+                                LocalDateTime.of(2026, 12, 2, 18, 0)))), () ->
+                assertEquals("Dec 2 2026",
                         DateTimeParser.format(TaskDateTime.of(LocalDate.of(2026, 12, 2)))));
     }
 
@@ -64,10 +60,9 @@ class DateTimeParserTest {
         TaskDateTime restoredDate = DateTimeParser.parseStored(DateTimeParser.formatStored(date));
         TaskDateTime restoredText = DateTimeParser.parseStored(DateTimeParser.formatStored(text));
 
-        assertAll(
-                () -> assertEquals(dateTime.getDateTime(), restoredDateTime.getDateTime()),
-                () -> assertEquals(date.getDate(), restoredDate.getDate()),
-                () -> assertEquals(text.getText(), restoredText.getText()));
+        assertAll(() -> assertEquals(dateTime.getDateTime(), restoredDateTime.getDateTime()), () ->
+                assertEquals(date.getDate(), restoredDate.getDate()), () ->
+                assertEquals(text.getText(), restoredText.getText()));
     }
 
     @Test
@@ -76,9 +71,8 @@ class DateTimeParserTest {
         TaskDateTime later = TaskDateTime.of(LocalDate.of(2026, 8, 7));
         TaskDateTime text = TaskDateTime.of("later");
 
-        assertAll(
-                () -> assertTrue(earlier.isBefore(later)),
-                () -> assertFalse(later.isBefore(earlier)),
-                () -> assertFalse(earlier.isBefore(text)));
+        assertAll(() -> assertTrue(earlier.isBefore(later)), () ->
+                assertFalse(later.isBefore(earlier)), () ->
+                assertFalse(earlier.isBefore(text)));
     }
 }

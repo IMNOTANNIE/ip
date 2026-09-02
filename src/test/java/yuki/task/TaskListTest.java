@@ -22,9 +22,8 @@ class TaskListTest {
 
         tasks.addTask(task);
 
-        assertAll(
-                () -> assertEquals(1, tasks.size()),
-                () -> assertSame(task, tasks.getTask(1)));
+        assertAll(() -> assertEquals(1, tasks.size()), () ->
+                assertSame(task, tasks.getTask(1)));
     }
 
     @Test
@@ -33,14 +32,12 @@ class TaskListTest {
         TaskList tasks = new TaskList(List.of(task));
 
         Task markedTask = tasks.markTask(1);
-        assertAll(
-                () -> assertSame(task, markedTask),
-                () -> assertTrue(task.isDone()));
+        assertAll(() -> assertSame(task, markedTask), () ->
+                assertTrue(task.isDone()));
 
         Task unmarkedTask = tasks.unmarkTask(1);
-        assertAll(
-                () -> assertSame(task, unmarkedTask),
-                () -> assertFalse(task.isDone()));
+        assertAll(() -> assertSame(task, unmarkedTask), () ->
+                assertFalse(task.isDone()));
     }
 
     @Test
@@ -51,19 +48,17 @@ class TaskListTest {
 
         Task deleted = tasks.deleteTask(1);
 
-        assertAll(
-                () -> assertSame(first, deleted),
-                () -> assertEquals(1, tasks.size()),
-                () -> assertSame(second, tasks.getTask(1)));
+        assertAll(() -> assertSame(first, deleted), () ->
+                assertEquals(1, tasks.size()), () ->
+                assertSame(second, tasks.getTask(1)));
     }
 
     @Test
     void getTask_taskNumberOutsideList_exceptionThrown() {
         TaskList tasks = new TaskList(List.of(new ToDo("only task")));
 
-        assertAll(
-                () -> assertThrows(YukiException.class, () -> tasks.getTask(0)),
-                () -> assertThrows(YukiException.class, () -> tasks.getTask(2)));
+        assertAll(() -> assertThrows(YukiException.class, () -> tasks.getTask(0)), () ->
+                assertThrows(YukiException.class, () -> tasks.getTask(2)));
     }
 
     @Test
@@ -75,10 +70,9 @@ class TaskListTest {
 
         List<Task> matches = tasks.findTasks("BOOK");
 
-        assertAll(
-                () -> assertEquals(2, matches.size()),
-                () -> assertSame(first, matches.get(0)),
-                () -> assertSame(third, matches.get(1)));
+        assertAll(() -> assertEquals(2, matches.size()), () ->
+                assertSame(first, matches.get(0)), () ->
+                assertSame(third, matches.get(1)));
     }
 
     @Test
@@ -97,9 +91,8 @@ class TaskListTest {
 
         tasks.addTask(new ToDo("second"));
 
-        assertAll(
-                () -> assertEquals(1, snapshot.size()),
-                () -> assertThrows(UnsupportedOperationException.class,
-                        () -> snapshot.add(new ToDo("third"))));
+        assertAll(() -> assertEquals(1, snapshot.size()), () ->
+                assertThrows(UnsupportedOperationException.class, () ->
+                        snapshot.add(new ToDo("third"))));
     }
 }

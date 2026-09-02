@@ -54,14 +54,13 @@ class StorageTest {
         ToDo restoredTodo = assertInstanceOf(ToDo.class, restored.get(0));
         Deadline restoredDeadline = assertInstanceOf(Deadline.class, restored.get(1));
         Event restoredEvent = assertInstanceOf(Event.class, restored.get(2));
-        assertAll(
-                () -> assertEquals(3, restored.size()),
-                () -> assertEquals("read | review 100% of notes", restoredTodo.getDescription()),
-                () -> assertTrue(restoredTodo.isDone()),
-                () -> assertEquals(LocalDateTime.of(2026, 12, 2, 18, 0),
-                        restoredDeadline.getBy().getDateTime()),
-                () -> assertEquals(LocalDate.of(2026, 8, 6), restoredEvent.getFrom().getDate()),
-                () -> assertEquals(LocalDate.of(2026, 8, 7), restoredEvent.getTo().getDate()));
+        assertAll(() -> assertEquals(3, restored.size()), () ->
+                assertEquals("read | review 100% of notes", restoredTodo.getDescription()), () ->
+                assertTrue(restoredTodo.isDone()), () ->
+                assertEquals(LocalDateTime.of(2026, 12, 2, 18, 0),
+                        restoredDeadline.getBy().getDateTime()), () ->
+                assertEquals(LocalDate.of(2026, 8, 6), restoredEvent.getFrom().getDate()), () ->
+                assertEquals(LocalDate.of(2026, 8, 7), restoredEvent.getTo().getDate()));
     }
 
     @Test
