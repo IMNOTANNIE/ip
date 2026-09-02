@@ -22,8 +22,13 @@ public class Yuki {
      * Creates Yuki and loads saved tasks before the command loop begins.
      */
     public Yuki() {
-        ui = new Ui();
-        storage = new Storage();
+        this(new Ui(), new Storage());
+    }
+
+    /** Creates Yuki using the supplied UI and storage components. */
+    Yuki(Ui ui, Storage storage) {
+        this.ui = ui;
+        this.storage = storage;
 
         TaskList loadedTasks;
         try {
@@ -34,6 +39,15 @@ public class Yuki {
             ui.showLoadingError(e.getMessage());
         }
         tasks = loadedTasks;
+    }
+
+    /**
+     * Creates a Yuki instance that returns responses without printing them.
+     *
+     * @return A Yuki instance suitable for a graphical interface.
+     */
+    public static Yuki createGuiInstance() {
+        return new Yuki(Ui.createSilentUi(), new Storage());
     }
 
     /**
@@ -55,6 +69,22 @@ public class Yuki {
                 ui.showError(e.getMessage());
             }
         }
+    }
+
+    /**
+     * Processes one command and returns Yuki's response.
+     *
+     * @param input Message entered by the user.
+     * @return Yuki's response to the message.
+     */
+    public String getResponse(String input) {
+        try {
+            Command command = Parser.parse(input);
+            command.execute(tasks, ui, storage);
+        } catch (YukiException e) {
+            ui.showError(e.getMessage());
+        }
+        return ui.getLastResponse();
     }
 
     /**

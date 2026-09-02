@@ -1,12 +1,13 @@
 package yuki.ui;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 import yuki.task.Task;
 
 /**
- * Handles all command-line interactions between Yuki and the user.
+ * Formats Yuki's responses and handles command-line interaction with the user.
  */
 public class Ui {
     /** Separates individual responses so they are easier to read. */
@@ -22,10 +23,30 @@ public class Ui {
 
     /** Reads commands entered through standard input. */
     private final Scanner scanner;
+    /** Whether responses should also be printed to standard output. */
+    private final boolean isOutputEnabled;
+    /** Most recent response generated for the user. */
+    private String lastResponse;
 
     /** Creates a UI that reads commands from standard input. */
     public Ui() {
+        this(true);
+    }
+
+    /** Creates a UI with the requested command-line output behavior. */
+    private Ui(boolean isOutputEnabled) {
         scanner = new Scanner(System.in);
+        this.isOutputEnabled = isOutputEnabled;
+        lastResponse = "";
+    }
+
+    /**
+     * Creates a UI that records responses without printing them.
+     *
+     * @return A UI suitable for a graphical interface.
+     */
+    public static Ui createSilentUi() {
+        return new Ui(false);
     }
 
     /** Returns whether another command is available to read. */
@@ -38,13 +59,14 @@ public class Ui {
         return scanner.nextLine();
     }
 
+    /** Returns the most recent response generated for the user. */
+    public String getLastResponse() {
+        return lastResponse;
+    }
+
     /** Displays Yuki's greeting. */
     public void showWelcome() {
-        System.out.println(SEPARATOR_LINE);
-        System.out.println(BANNER);
-        System.out.println("...Hello. This is Yuki.");
-        System.out.println("What do you need?");
-        System.out.println(SEPARATOR_LINE);
+        showResponse(BANNER, "...Hello. This is Yuki.", "What do you need?");
     }
 
     /** Displays Yuki's farewell. */
@@ -90,25 +112,29 @@ public class Ui {
 
     /** Displays an error caused while loading saved tasks. */
     public void showLoadingError(String message) {
-        System.out.println("I couldn't load the saved tasks. " + message);
+        lastResponse = "I couldn't load the saved tasks. " + message;
+        if (isOutputEnabled) {
+            System.out.println(lastResponse);
+        }
     }
 
     /** Displays a heading and a one-based numbered list of tasks. */
     private void showNumberedTaskList(String heading, List<Task> tasks) {
-        System.out.println(SEPARATOR_LINE);
-        System.out.println(heading);
+        List<String> lines = new ArrayList<>();
+        lines.add(heading);
         for (int i = 0; i < tasks.size(); i++) {
-            System.out.println((i + 1) + "." + tasks.get(i));
+            lines.add((i + 1) + "." + tasks.get(i));
         }
-        System.out.println(SEPARATOR_LINE);
+        showResponse(lines.toArray(String[]::new));
     }
 
     /** Displays one response surrounded by separator lines. */
     private void showResponse(String... lines) {
-        System.out.println(SEPARATOR_LINE);
-        for (String line : lines) {
-            System.out.println(line);
+        lastResponse = String.join(System.lineSeparator(), lines);
+        if (isOutputEnabled) {
+            System.out.println(SEPARATOR_LINE);
+            System.out.println(lastResponse);
+            System.out.println(SEPARATOR_LINE);
         }
-        System.out.println(SEPARATOR_LINE);
     }
 }
