@@ -3,6 +3,7 @@ package yuki.time;
 import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
@@ -12,6 +13,13 @@ import org.junit.jupiter.api.Test;
 
 /** Tests accepted date formats and the stable storage representation. */
 class DateTimeParserTest {
+    @Test
+    void of_nullValue_nullPointerExceptionThrown() {
+        assertThrows(NullPointerException.class, () -> TaskDateTime.of((LocalDateTime) null));
+        assertThrows(NullPointerException.class, () -> TaskDateTime.of((LocalDate) null));
+        assertThrows(NullPointerException.class, () -> TaskDateTime.of((String) null));
+    }
+
     @Test
     void parse_supportedDateTimeFormats_dateTimeReturned() {
         TaskDateTime compactTime = DateTimeParser.parse("2/12/2026 1800");

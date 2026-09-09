@@ -25,6 +25,8 @@ public class UnmarkCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
         Task task = tasks.unmarkTask(taskNumber);
+        assert !task.isDone() : "A task returned by unmarkTask must be marked as not done";
+
         ui.showTaskStatusChanged("The task is no longer marked as done:", task);
         storage.saveTasks(tasks.getTasks());
     }

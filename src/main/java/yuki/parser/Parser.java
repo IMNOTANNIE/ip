@@ -85,6 +85,11 @@ public final class Parser {
      * @throws YukiException If the command does not contain the required arguments.
      */
     private static Task createTask(String command, CommandType commandType) {
+        assert commandType == CommandType.TODO
+                || commandType == CommandType.DEADLINE
+                || commandType == CommandType.EVENT
+                : "createTask requires a task-creation command type";
+
         String arguments = command.trim()
                 .substring(commandType.getKeyword().length())
                 .trim();
@@ -156,6 +161,11 @@ public final class Parser {
      * @throws YukiException If the task number is missing or is not an integer.
      */
     private static int parseTaskNumber(String command, CommandType commandType) {
+        assert commandType == CommandType.DELETE
+                || commandType == CommandType.MARK
+                || commandType == CommandType.UNMARK
+                : "parseTaskNumber requires a numbered command type";
+
         String normalizedCommand = command.trim();
         if (normalizedCommand.equals(commandType.getKeyword())) {
             throw new YukiException("The task number is missing.");

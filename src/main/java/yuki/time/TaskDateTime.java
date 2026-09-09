@@ -2,6 +2,7 @@ package yuki.time;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 /**
  * Holds either a parsed date, a parsed date-time, or the user's original text.
@@ -12,23 +13,49 @@ public class TaskDateTime {
     private final String text;
 
     private TaskDateTime(LocalDate date, LocalDateTime dateTime, String text) {
+        assert (date != null ? 1 : 0)
+                + (dateTime != null ? 1 : 0)
+                + (text != null ? 1 : 0) == 1
+                : "TaskDateTime must contain exactly one representation";
+
         this.date = date;
         this.dateTime = dateTime;
         this.text = text;
     }
 
-    /** Creates a value containing both a date and a time. */
+    /**
+     * Creates a value containing both a date and a time.
+     *
+     * @param dateTime Date and time to store.
+     * @return A value containing the supplied date and time.
+     * @throws NullPointerException If {@code dateTime} is {@code null}.
+     */
     public static TaskDateTime of(LocalDateTime dateTime) {
+        Objects.requireNonNull(dateTime, "dateTime must not be null");
         return new TaskDateTime(null, dateTime, null);
     }
 
-    /** Creates a value containing a date without a time. */
+    /**
+     * Creates a value containing a date without a time.
+     *
+     * @param date Date to store.
+     * @return A value containing the supplied date.
+     * @throws NullPointerException If {@code date} is {@code null}.
+     */
     public static TaskDateTime of(LocalDate date) {
+        Objects.requireNonNull(date, "date must not be null");
         return new TaskDateTime(date, null, null);
     }
 
-    /** Creates a value containing text that does not match a supported date format. */
+    /**
+     * Creates a value containing text that does not match a supported date format.
+     *
+     * @param text Text to store.
+     * @return A value containing the supplied text.
+     * @throws NullPointerException If {@code text} is {@code null}.
+     */
     public static TaskDateTime of(String text) {
+        Objects.requireNonNull(text, "text must not be null");
         return new TaskDateTime(null, null, text);
     }
 
