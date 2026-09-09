@@ -90,69 +90,66 @@ public final class Parser {
                 || commandType == CommandType.EVENT
                 : "createTask requires a task-creation command type";
 
-        String normalizedCommand = command.trim();
-        if (commandType == CommandType.TODO) {
-            String description = normalizedCommand.length() > 4
-                    ? normalizedCommand.substring(4).trim()
-                    : "";
+        String arguments = command.trim()
+                .substring(commandType.getKeyword().length())
+                .trim();
 
-            if (description.isBlank()) {
-                throw new YukiException(
-                        "The todo description is missing. Please add a task description after 'todo'.");
-            }
+        return switch (commandType) {
+            case TODO -> createTodo(arguments);
+            case DEADLINE -> createDeadline(arguments);
+            case EVENT -> createEvent(arguments);
+            default -> throw new YukiException("That command isn't familiar to me.");
+        };
+    }
 
-            return new ToDo(description);
+    /** Creates a to-do task from its command arguments. */
+    private static ToDo createTodo(String description) {
+        if (description.isBlank()) {
+            throw new YukiException(
+                    "The todo description is missing. Please add a task description after 'todo'.");
+        }
+        return new ToDo(description);
+    }
+
+    /** Creates a deadline task from its command arguments. */
+    private static Deadline createDeadline(String arguments) {
+        String[] descriptionAndDate = arguments.split(" /by ", 2);
+        if (descriptionAndDate.length != 2
+                || descriptionAndDate[0].isBlank()
+                || descriptionAndDate[1].isBlank()) {
+            throw new YukiException(
+                    "The deadline needs a description, date and time. For example: "
+                            + "deadline return book /by 26/8/2026 1800.");
         }
 
-        if (commandType == CommandType.DEADLINE) {
-            String content = normalizedCommand.length() > 8
-                    ? normalizedCommand.substring(8).trim()
-                    : "";
-            String[] parts = content.split(" /by ", 2);
+        String description = descriptionAndDate[0].trim();
+        TaskDateTime deadline = DateTimeParser.parse(descriptionAndDate[1].trim());
+        return new Deadline(description, deadline);
+    }
 
-            if (parts.length != 2
-                    || parts[0].isBlank()
-                    || parts[1].isBlank()) {
-                throw new YukiException(
-                        "The deadline needs a description, date and time. For example: "
-                                + "deadline return book /by 26/8/2026 1800.");
-            }
-
-            return new Deadline(parts[0].trim(), DateTimeParser.parse(parts[1].trim()));
+    /** Creates an event task from its command arguments. */
+    private static Event createEvent(String arguments) {
+        String[] descriptionAndTimes = arguments.split(" /from ", 2);
+        if (descriptionAndTimes.length != 2
+                || descriptionAndTimes[0].isBlank()
+                || descriptionAndTimes[1].isBlank()) {
+            throw new YukiException(
+                    "The event needs a description, a start time and an end time. For example: "
+                            + "event meeting /from 26/8/2026 1800 /to 26/8/2026 2000.");
         }
 
-        if (commandType == CommandType.EVENT) {
-            String content = normalizedCommand.length() > 5
-                    ? normalizedCommand.substring(5).trim()
-                    : "";
-
-            String[] descriptionAndTimes = content.split(" /from ", 2);
-            String description = descriptionAndTimes[0];
-            if (descriptionAndTimes.length != 2
-                    || description.isBlank()
-                    || descriptionAndTimes[1].isBlank()) {
-                throw new YukiException(
-                        "The event needs a description, a start time and an end time. For example: "
-                                + "event meeting /from 26/8/2026 1800 /to 26/8/2026 2000.");
-            }
-
-            String[] times = descriptionAndTimes[1].split(" /to ", 2);
-            if (times.length != 2
-                    || times[0].isBlank()
-                    || times[1].isBlank()) {
-                throw new YukiException("The event needs an end time.");
-            }
-
-            TaskDateTime from = DateTimeParser.parse(times[0].trim());
-            TaskDateTime to = DateTimeParser.parse(times[1].trim());
-            if (to.isBefore(from)) {
-                throw new YukiException("The event's end time cannot be before its start time.");
-            }
-
-            return new Event(description.trim(), from, to);
+        String[] times = descriptionAndTimes[1].split(" /to ", 2);
+        if (times.length != 2 || times[0].isBlank() || times[1].isBlank()) {
+            throw new YukiException("The event needs an end time.");
         }
 
-        throw new YukiException("That command isn't familiar to me.");
+        TaskDateTime from = DateTimeParser.parse(times[0].trim());
+        TaskDateTime to = DateTimeParser.parse(times[1].trim());
+        if (to.isBefore(from)) {
+            throw new YukiException("The event's end time cannot be before its start time.");
+        }
+
+        return new Event(descriptionAndTimes[0].trim(), from, to);
     }
 
     /**
