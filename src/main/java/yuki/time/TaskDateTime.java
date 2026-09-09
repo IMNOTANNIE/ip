@@ -3,6 +3,7 @@ package yuki.time;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Holds either a parsed date, a parsed date-time, or the user's original text.
@@ -79,6 +80,24 @@ public class TaskDateTime {
 
     public String getText() {
         return text;
+    }
+
+    /**
+     * Returns this value as a date-time suitable for reminder comparisons.
+     *
+     * <p>A date without a time is interpreted as 23:59 on that date. Text values
+     * cannot be converted and return an empty result.</p>
+     *
+     * @return The comparable date-time, or an empty result for text values.
+     */
+    public Optional<LocalDateTime> toReminderDateTime() {
+        if (hasDateTime()) {
+            return Optional.of(dateTime);
+        }
+        if (hasDateOnly()) {
+            return Optional.of(date.atTime(23, 59));
+        }
+        return Optional.empty();
     }
 
     /** Compares values of the same parsed type; text or mixed values are not ordered here. */

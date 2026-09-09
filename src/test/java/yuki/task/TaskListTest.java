@@ -7,11 +7,14 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
 import yuki.exception.YukiException;
+import yuki.time.TaskDateTime;
 
 /** Tests the ordered task collection and its user-facing numbering rules. */
 class TaskListTest {
@@ -94,5 +97,56 @@ class TaskListTest {
         assertAll(() -> assertEquals(1, snapshot.size()), () ->
                 assertThrows(UnsupportedOperationException.class, () ->
                         snapshot.add(new ToDo("third"))));
+    }
+
+    @Test
+    void findUpcomingTaskNumbers_mixedTasks_matchingNumbersReturnedInTimeOrder() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 9, 9, 0);
+        Task completedDeadline = new Deadline("completed",
+                TaskDateTime.of(now.plusHours(1)));
+        completedDeadline.markAsDone();
+        TaskList tasks = new TaskList(List.of(
+                new ToDo("todo"),
+                new Deadline("later deadline", TaskDateTime.of(now.plusHours(20))),
+                new Event("earlier event", TaskDateTime.of(now.plusHours(2)),
+                        TaskDateTime.of(now.plusHours(3))),
+                new Deadline("outside window", TaskDateTime.of(now.plusHours(25))),
+                new Deadline("free text", TaskDateTime.of("tomorrow")),
+                completedDeadline));
+
+        List<Integer> taskNumbers = tasks.findUpcomingTaskNumbers(now, now.plusHours(24));
+
+        assertEquals(List.of(3, 2), taskNumbers);
+    }
+
+    @Test
+    void findUpcomingTaskNumbers_boundaryTimes_boundariesIncluded() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 9, 9, 0);
+        TaskList tasks = new TaskList(List.of(
+                new Deadline("due now", TaskDateTime.of(now)),
+                new Event("upper boundary", TaskDateTime.of(now.plusHours(24)),
+                        TaskDateTime.of(now.plusHours(25)))));
+
+        assertEquals(List.of(1, 2),
+                tasks.findUpcomingTaskNumbers(now, now.plusHours(24)));
+    }
+
+    @Test
+    void findUpcomingTaskNumbers_dateOnlyTask_dateTreatedAs2359() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 9, 23, 0);
+        TaskList tasks = new TaskList(List.of(new Deadline("date only",
+                TaskDateTime.of(LocalDate.of(2026, 9, 9)))));
+
+        assertEquals(List.of(1),
+                tasks.findUpcomingTaskNumbers(now, now.plusHours(1)));
+    }
+
+    @Test
+    void findUpcomingTaskNumbers_endBeforeStart_exceptionThrown() {
+        LocalDateTime now = LocalDateTime.of(2026, 9, 9, 9, 0);
+        TaskList tasks = new TaskList();
+
+        assertThrows(IllegalArgumentException.class, () ->
+                tasks.findUpcomingTaskNumbers(now, now.minusMinutes(1)));
     }
 }

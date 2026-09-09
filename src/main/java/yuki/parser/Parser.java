@@ -1,6 +1,8 @@
 package yuki.parser;
 
+import java.time.Clock;
 import java.util.Arrays;
+import java.util.Objects;
 
 import yuki.command.AddCommand;
 import yuki.command.Command;
@@ -9,6 +11,7 @@ import yuki.command.ExitCommand;
 import yuki.command.FindCommand;
 import yuki.command.ListCommand;
 import yuki.command.MarkCommand;
+import yuki.command.RemindersCommand;
 import yuki.command.UnmarkCommand;
 import yuki.exception.YukiException;
 import yuki.task.Deadline;
@@ -34,6 +37,19 @@ public final class Parser {
      * @throws YukiException If the command or its arguments are invalid.
      */
     public static Command parse(String command) {
+        return parse(command, Clock.systemDefaultZone());
+    }
+
+    /**
+     * Converts a complete user command using the supplied clock.
+     *
+     * @param command The complete command entered by the user.
+     * @param clock Clock used by commands that depend on the current time.
+     * @return The command object representing the user's instruction.
+     * @throws YukiException If the command or its arguments are invalid.
+     */
+    public static Command parse(String command, Clock clock) {
+        Objects.requireNonNull(clock, "clock must not be null");
         CommandType commandType = parseCommandType(command);
 
         return switch (commandType) {
@@ -42,6 +58,10 @@ public final class Parser {
             case MARK -> new MarkCommand(parseTaskNumber(command, commandType));
             case UNMARK -> new UnmarkCommand(parseTaskNumber(command, commandType));
             case FIND -> new FindCommand(parseKeyword(command, commandType));
+            case REMINDERS -> {
+                validateRemindersCommand(command, commandType);
+                yield new RemindersCommand(clock);
+            }
             case LIST -> {
                 validateNoArguments(command, commandType);
                 yield new ListCommand();
@@ -208,6 +228,14 @@ public final class Parser {
             throw new YukiException(
                     "..There’s no need to add anything else to the "
                             + commandType.getKeyword() + " command.");
+        }
+    }
+
+    /** Checks that a reminders command contains only its keyword. */
+    private static void validateRemindersCommand(String command, CommandType commandType) {
+        if (!command.trim().equals(commandType.getKeyword())) {
+            throw new YukiException(
+                    "There’s no need to add anything else to the reminders command.");
         }
     }
 }

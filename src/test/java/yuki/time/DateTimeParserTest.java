@@ -83,4 +83,16 @@ class DateTimeParserTest {
                 assertFalse(later.isBefore(earlier)), () ->
                 assertFalse(earlier.isBefore(text)));
     }
+
+    @Test
+    void toReminderDateTime_dateTimeDateAndText_expectedValuesReturned() {
+        LocalDateTime dateTime = LocalDateTime.of(2026, 9, 9, 18, 0);
+        TaskDateTime dateValue = TaskDateTime.of(LocalDate.of(2026, 9, 9));
+
+        assertAll(() -> assertEquals(dateTime,
+                        TaskDateTime.of(dateTime).toReminderDateTime().orElseThrow()), () ->
+                assertEquals(LocalDateTime.of(2026, 9, 9, 23, 59),
+                        dateValue.toReminderDateTime().orElseThrow()), () ->
+                assertTrue(TaskDateTime.of("someday").toReminderDateTime().isEmpty()));
+    }
 }

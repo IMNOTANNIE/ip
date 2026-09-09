@@ -6,8 +6,11 @@ import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.time.Clock;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -17,6 +20,7 @@ import yuki.command.ExitCommand;
 import yuki.command.FindCommand;
 import yuki.command.ListCommand;
 import yuki.command.MarkCommand;
+import yuki.command.RemindersCommand;
 import yuki.command.UnmarkCommand;
 import yuki.exception.YukiException;
 import yuki.storage.Storage;
@@ -94,7 +98,8 @@ class ParserTest {
     @Test
     void parse_noArgumentCommandWithExtraText_exceptionThrown() {
         assertAll(() -> assertThrows(YukiException.class, () -> Parser.parse("list now")), () ->
-                assertThrows(YukiException.class, () -> Parser.parse("bye now")));
+                assertThrows(YukiException.class, () -> Parser.parse("bye now")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse("reminders now")));
     }
 
     @Test
@@ -103,9 +108,23 @@ class ParserTest {
                 assertInstanceOf(UnmarkCommand.class, Parser.parse("unmark 1")), () ->
                 assertInstanceOf(DeleteCommand.class, Parser.parse("delete 1")), () ->
                 assertInstanceOf(FindCommand.class, Parser.parse("find book")), () ->
+                assertInstanceOf(RemindersCommand.class, Parser.parse("reminders")), () ->
                 assertInstanceOf(ListCommand.class, Parser.parse("list")), () ->
                 assertInstanceOf(ExitCommand.class, Parser.parse("bye")), () ->
                 assertTrue(Parser.parse("bye").isExit()));
+    }
+
+    @Test
+    void parse_remindersCommandWithClock_clockUsedWhenExecuted() {
+        Clock clock = Clock.fixed(
+                Instant.parse("2026-09-09T01:00:00Z"), ZoneOffset.ofHours(8));
+        TaskList tasks = new TaskList(List.of(new Deadline("submit report",
+                yuki.time.TaskDateTime.of(LocalDateTime.of(2026, 9, 10, 9, 0)))));
+        Ui ui = Ui.createSilentUi();
+
+        Parser.parse("reminders", clock).execute(tasks, ui, new NoOpStorage());
+
+        assertTrue(ui.getLastResponse().contains("1.[D][ ] submit report"));
     }
 
     /** Parses and executes a task-creation command, then returns the added task. */

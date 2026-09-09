@@ -1,10 +1,15 @@
 package yuki.task;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
+import java.util.stream.IntStream;
 
 import yuki.exception.YukiException;
+import yuki.time.TaskDateTime;
 
 /**
  * Owns and manages Yuki's ordered collection of tasks.
@@ -85,6 +90,35 @@ public class TaskList {
     }
 
     /**
+     * Returns the original task numbers of incomplete dated tasks in a time window.
+     *
+     * <p>Deadlines use their due time, while events use their start time. The
+     * returned task numbers are ordered by time and then by their list position.</p>
+     *
+     * @param fromInclusive Start of the time window, inclusive.
+     * @param toInclusive End of the time window, inclusive.
+     * @return One-based task numbers of upcoming tasks.
+     * @throws IllegalArgumentException If the end is before the start.
+     */
+    public List<Integer> findUpcomingTaskNumbers(
+            LocalDateTime fromInclusive, LocalDateTime toInclusive) {
+        if (toInclusive.isBefore(fromInclusive)) {
+            throw new IllegalArgumentException("The time window cannot end before it starts");
+        }
+
+        Comparator<Integer> byTaskTime = Comparator
+                .comparing(index -> getReminderDateTime(tasks.get(index)).orElseThrow());
+        return IntStream.range(0, tasks.size())
+                .filter(index -> !tasks.get(index).isDone())
+                .filter(index -> isWithinTimeWindow(
+                        tasks.get(index), fromInclusive, toInclusive))
+                .boxed()
+                .sorted(byTaskTime.thenComparingInt(Integer::intValue))
+                .map(index -> index + 1)
+                .toList();
+    }
+
+    /**
      * Returns the task at a user-facing task number.
      *
      * @param taskNumber One-based task number entered by the user.
@@ -121,5 +155,27 @@ public class TaskList {
         assert listIndex >= 0 && listIndex < tasks.size()
                 : "A validated task number must map to an existing list index";
         return listIndex;
+    }
+
+    /** Returns whether a task has a comparable time within the supplied window. */
+    private boolean isWithinTimeWindow(
+            Task task, LocalDateTime fromInclusive, LocalDateTime toInclusive) {
+        return getReminderDateTime(task)
+                .filter(dateTime -> !dateTime.isBefore(fromInclusive))
+                .filter(dateTime -> !dateTime.isAfter(toInclusive))
+                .isPresent();
+    }
+
+    /** Returns the deadline or event start time used for reminders. */
+    private Optional<LocalDateTime> getReminderDateTime(Task task) {
+        TaskDateTime taskDateTime;
+        if (task instanceof Deadline deadline) {
+            taskDateTime = deadline.getBy();
+        } else if (task instanceof Event event) {
+            taskDateTime = event.getFrom();
+        } else {
+            return Optional.empty();
+        }
+        return taskDateTime.toReminderDateTime();
     }
 }
