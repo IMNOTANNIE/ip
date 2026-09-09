@@ -24,7 +24,11 @@ public class DeleteCommand extends Command {
     /** Deletes, saves, and displays the selected task. */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
+        int previousTaskCount = tasks.size();
         Task removedTask = tasks.deleteTask(taskNumber);
+        assert tasks.size() == previousTaskCount - 1
+                : "Deleting one task must decrease the task count by one";
+
         storage.saveTasks(tasks.getTasks());
         ui.showTaskDeleted(removedTask, tasks.size());
     }

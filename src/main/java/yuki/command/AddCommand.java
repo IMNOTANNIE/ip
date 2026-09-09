@@ -24,7 +24,11 @@ public class AddCommand extends Command {
     /** Adds, saves, and displays the new task. */
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
+        int previousTaskCount = tasks.size();
         tasks.addTask(task);
+        assert tasks.size() == previousTaskCount + 1
+                : "Adding one task must increase the task count by one";
+
         storage.saveTasks(tasks.getTasks());
         ui.showTaskAdded(task, tasks.size());
     }

@@ -25,6 +25,8 @@ public class MarkCommand extends Command {
     @Override
     public void execute(TaskList tasks, Ui ui, Storage storage) {
         Task task = tasks.markTask(taskNumber);
+        assert task.isDone() : "A task returned by markTask must be marked as done";
+
         ui.showTaskStatusChanged("It's done now... I think.", task);
         storage.saveTasks(tasks.getTasks());
     }
