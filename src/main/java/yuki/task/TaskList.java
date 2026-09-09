@@ -119,6 +119,10 @@ public class TaskList {
                     "I couldn't find a task with that number. Please enter a number between 1 and "
                             + tasks.size() + ".");
         }
-        return taskNumber - 1;
+
+        int listIndex = taskNumber - 1;
+        assert listIndex >= 0 && listIndex < tasks.size()
+                : "A validated task number must map to an existing list index";
+        return listIndex;
     }
 }
