@@ -6,10 +6,13 @@ The visible `␠` marker represents a trailing space in the banner so that white
 ## Test case: Parse and execute valid commands
 
 ### Aim
-Verify that AddCommand, ListCommand, MarkCommand, UnmarkCommand, DeleteCommand, and ExitCommand preserve every supported command's behavior.
+Verify that AddCommand, ListCommand, MarkCommand, UnmarkCommand, DeleteCommand, RemindersCommand,
+and ExitCommand preserve every supported command's behavior.
 
 ### Inputs
-Run with a fresh data directory. Add todo, deadline, and event tasks; list them; update a task; delete a task; then exit.
+Run with a fresh data directory. Add todo, deadline, and event tasks; list them; update a task;
+delete a task; query reminders; then exit. The dated tasks in this fixed transcript are in the past,
+so the reminder query has no matches.
 
 ### Command
 ```powershell
@@ -23,7 +26,7 @@ $sources = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\main\java')
 & javac -d $build $sources
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Push-Location $run
-@('  todo read book  ', 'deadline return book /by 26/8/2026 1800', 'event project meeting /from 26/8/2026 1400 /to 26/8/2026 1600', '  list  ', 'mark 1', 'unmark 1', 'delete 2', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build yuki.Yuki | ForEach-Object { $_ -replace ' $', '␠' }
+@('  todo read book  ', 'deadline return book /by 26/8/2026 1800', 'event project meeting /from 26/8/2026 1400 /to 26/8/2026 1600', '  list  ', 'mark 1', 'unmark 1', 'delete 2', 'reminders', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build yuki.Yuki | ForEach-Object { $_ -replace ' $', '␠' }
 Pop-Location
 ```
 
@@ -74,6 +77,9 @@ Alright... I've removed it.
 There are 2 tasks now.
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
+You have no tasks due in the next 24 hours.
+❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
+❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 ...Goodbye.
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 ```
@@ -98,7 +104,7 @@ $sources = @(Get-ChildItem -LiteralPath (Join-Path $projectRoot 'src\main\java')
 & javac -d $build $sources
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 Push-Location $run
-@('', 'unknown', 'todo', 'deadline return book', 'event meeting /from 26/8/2026 1800', 'event backwards /from 26/8/2026 2000 /to 26/8/2026 1800', 'mark', 'mark abc', 'mark 1', 'list extra', 'bye extra', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build yuki.Yuki | ForEach-Object { $_ -replace ' $', '␠' }
+@('', 'unknown', 'todo', 'deadline return book', 'event meeting /from 26/8/2026 1800', 'event backwards /from 26/8/2026 2000 /to 26/8/2026 1800', 'mark', 'mark abc', 'mark 1', 'list extra', 'reminders extra', 'bye extra', 'bye') | & java '-Dfile.encoding=UTF-8' '-Dstdout.encoding=UTF-8' '-Dstderr.encoding=UTF-8' -cp $build yuki.Yuki | ForEach-Object { $_ -replace ' $', '␠' }
 Pop-Location
 ```
 
@@ -143,6 +149,9 @@ I couldn't process that. I couldn't find a task with that number. Please enter a
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 I couldn't process that. ..There’s no need to add anything else to the list command.
+❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
+❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
+I couldn't process that. There’s no need to add anything else to the reminders command.
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 ❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄─────❄
 I couldn't process that. ..There’s no need to add anything else to the bye command.

@@ -1,2 +1,5 @@
-T | 1 | return book
-D | 0 | CS2103T Quiz | S:next Tuesday
+T | 0 | buy milk
+D | 0 | submit report | D:2026-09-09
+E | 0 | meeting | DT:2026-09-10T00:01 | DT:2026-09-10T01:00
+D | 0 | quiz | S:next Tuesday
+D | 0 | quiz | S:tomorrow

@@ -84,6 +84,23 @@ public class Ui {
         showNumberedTaskList("Here... These are the matching tasks in your list:", tasks);
     }
 
+    /** Displays upcoming tasks with their original task-list numbers. */
+    public void showUpcomingTasks(List<Task> tasks, List<Integer> taskNumbers) {
+        List<String> lines = new ArrayList<>();
+        lines.add("Here... These tasks are due in the next 24 hours:");
+        for (int taskNumber : taskNumbers) {
+            assert taskNumber >= 1 && taskNumber <= tasks.size()
+                    : "An upcoming task number must identify an existing task";
+            lines.add(taskNumber + "." + tasks.get(taskNumber - 1));
+        }
+        showResponse(lines.toArray(String[]::new));
+    }
+
+    /** Displays that no incomplete dated tasks are due soon. */
+    public void showNoUpcomingTasks() {
+        showResponse("You have no tasks due in the next 24 hours.");
+    }
+
     /** Displays a task after its completion status has changed. */
     public void showTaskStatusChanged(String message, Task task) {
         showResponse(message, task.toString());

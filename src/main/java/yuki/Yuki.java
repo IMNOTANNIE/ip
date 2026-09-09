@@ -1,6 +1,9 @@
 package yuki;
 
+import java.time.Clock;
+
 import yuki.command.Command;
+import yuki.command.RemindersCommand;
 import yuki.exception.YukiException;
 import yuki.parser.Parser;
 import yuki.storage.Storage;
@@ -17,18 +20,26 @@ public class Yuki {
     private final TaskList tasks;
     /** Handles all interaction with the user. */
     private final Ui ui;
+    /** Supplies the current time for reminder queries. */
+    private final Clock clock;
 
     /**
      * Creates Yuki and loads saved tasks before the command loop begins.
      */
     public Yuki() {
-        this(new Ui(), new Storage());
+        this(new Ui(), new Storage(), Clock.systemDefaultZone());
     }
 
     /** Creates Yuki using the supplied UI and storage components. */
     Yuki(Ui ui, Storage storage) {
+        this(ui, storage, Clock.systemDefaultZone());
+    }
+
+    /** Creates Yuki using the supplied components and clock. */
+    Yuki(Ui ui, Storage storage, Clock clock) {
         this.ui = ui;
         this.storage = storage;
+        this.clock = clock;
 
         TaskList loadedTasks;
         try {
@@ -47,7 +58,7 @@ public class Yuki {
      * @return A Yuki instance suitable for a graphical interface.
      */
     public static Yuki createGuiInstance() {
-        return new Yuki(Ui.createSilentUi(), new Storage());
+        return new Yuki(Ui.createSilentUi(), new Storage(), Clock.systemDefaultZone());
     }
 
     /**
@@ -56,12 +67,13 @@ public class Yuki {
     public void run() {
         // Greet the user before starting the command loop.
         ui.showWelcome();
+        getStartupReminderResponse();
 
         boolean isExit = false;
         while (!isExit && ui.hasNextCommand()) {
             try {
                 String fullCommand = ui.readCommand();
-                Command command = Parser.parse(fullCommand);
+                Command command = Parser.parse(fullCommand, clock);
                 command.execute(tasks, ui, storage);
                 isExit = command.isExit();
             } catch (YukiException e) {
@@ -79,10 +91,23 @@ public class Yuki {
      */
     public String getResponse(String input) {
         try {
-            Command command = Parser.parse(input);
+            Command command = Parser.parse(input, clock);
             command.execute(tasks, ui, storage);
         } catch (YukiException e) {
             ui.showError(e.getMessage());
+        }
+        return ui.getLastResponse();
+    }
+
+    /**
+     * Returns a startup reminder response without showing an empty result message.
+     *
+     * @return The reminder response, or an empty string when no task is due soon.
+     */
+    public String getStartupReminderResponse() {
+        RemindersCommand command = new RemindersCommand(clock);
+        if (!command.executeIfAny(tasks, ui)) {
+            return "";
         }
         return ui.getLastResponse();
     }

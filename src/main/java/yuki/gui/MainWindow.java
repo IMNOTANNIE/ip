@@ -50,6 +50,11 @@ public class MainWindow extends AnchorPane {
      */
     public void setYuki(Yuki yuki) {
         this.yuki = yuki;
+        String startupReminder = yuki.getStartupReminderResponse();
+        if (!startupReminder.isBlank()) {
+            dialogContainer.getChildren().add(
+                    DialogBox.getYukiDialog(startupReminder, yukiImage));
+        }
     }
 
     /** Displays the user's input and Yuki's response, then clears the input field. */
