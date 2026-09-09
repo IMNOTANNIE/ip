@@ -37,6 +37,20 @@ class StorageTest {
     }
 
     @Test
+    void loadTasks_blankLines_blankLinesIgnored() throws IOException {
+        Path dataFile = tempDirectory.resolve("userdata.txt");
+        Files.writeString(dataFile, System.lineSeparator()
+                + "T | 0 | read book"
+                + System.lineSeparator(), StandardCharsets.UTF_8);
+        Storage storage = new Storage(dataFile);
+
+        List<Task> restored = storage.loadTasks();
+
+        assertAll(() -> assertEquals(1, restored.size()), () ->
+                assertEquals("read book", restored.get(0).getDescription()));
+    }
+
+    @Test
     void saveAndLoadTasks_allTaskTypesAndStatus_valuesPreserved() {
         Path dataFile = tempDirectory.resolve("nested").resolve("userdata.txt");
         Storage storage = new Storage(dataFile);

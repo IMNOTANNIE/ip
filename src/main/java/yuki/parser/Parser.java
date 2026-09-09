@@ -1,5 +1,7 @@
 package yuki.parser;
 
+import java.util.Arrays;
+
 import yuki.command.AddCommand;
 import yuki.command.Command;
 import yuki.command.DeleteCommand;
@@ -67,13 +69,10 @@ public final class Parser {
         String[] commandParts = normalizedCommand.split("\\s+", 2);
         String commandWord = commandParts[0];
 
-        for (CommandType commandType : CommandType.values()) {
-            if (commandType.getKeyword().equals(commandWord)) {
-                return commandType;
-            }
-        }
-
-        throw new YukiException("That command isn't familiar to me.");
+        return Arrays.stream(CommandType.values())
+                .filter(commandType -> commandType.getKeyword().equals(commandWord))
+                .findFirst()
+                .orElseThrow(() -> new YukiException("That command isn't familiar to me."));
     }
 
     /**
