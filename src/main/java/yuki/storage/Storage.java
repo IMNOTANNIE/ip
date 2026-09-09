@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import yuki.exception.YukiException;
 import yuki.task.Deadline;
@@ -51,33 +52,29 @@ public class Storage {
      * @throws YukiException If the file cannot be read or is invalid.
      */
     public ArrayList<Task> loadTasks() {
-        ArrayList<Task> tasks = new ArrayList<>();
         List<String> lines;
 
         try {
             lines = Files.readAllLines(dataFile, StandardCharsets.UTF_8);
         } catch (NoSuchFileException e) {
-            return tasks;
+            return new ArrayList<>();
         } catch (IOException e) {
             throw new YukiException("I couldn't read the saved tasks: " + e.getMessage());
         }
 
-        for (String line : lines) {
-            if (!line.isBlank()) {
-                tasks.add(parseTask(line));
-            }
-        }
-        return tasks;
+        return lines.stream()
+                .filter(line -> !line.isBlank())
+                .map(this::parseTask)
+                .collect(Collectors.toCollection(ArrayList::new));
     }
 
     /** Saves the current task list, replacing the old file contents. */
     public void saveTasks(List<Task> tasks) {
         try {
             Files.createDirectories(dataFile.getParent());
-            List<String> lines = new ArrayList<>();
-            for (Task task : tasks) {
-                lines.add(formatTask(task));
-            }
+            List<String> lines = tasks.stream()
+                    .map(this::formatTask)
+                    .toList();
             Files.write(dataFile, lines, StandardCharsets.UTF_8);
         } catch (IOException e) {
             throw new YukiException("I couldn't save the tasks: " + e.getMessage());
