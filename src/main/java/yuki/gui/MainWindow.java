@@ -13,12 +13,9 @@ import yuki.Yuki;
  * Controls Yuki's main graphical interface.
  */
 public class MainWindow extends AnchorPane {
-    /** Avatar displayed beside messages sent by the user. */
-    private final Image userImage = new Image(
-            getClass().getResourceAsStream("/images/UserAvatar.png"));
     /** Avatar displayed beside responses sent by Yuki. */
     private final Image yukiImage = new Image(
-            getClass().getResourceAsStream("/images/YukiLogo.jpg"));
+            getClass().getResourceAsStream("/images/YukiLogo.png"));
 
     /** Provides a scrollable view of the conversation. */
     @FXML
@@ -64,8 +61,9 @@ public class MainWindow extends AnchorPane {
         String yukiText = yuki.getResponse(userText);
 
         dialogContainer.getChildren().addAll(
-                DialogBox.getUserDialog(userText, userImage),
-                DialogBox.getYukiDialog(yukiText, yukiImage));
+                DialogBox.getUserDialog(userText),
+                DialogBox.getYukiDialog(yukiText, yukiImage,
+                        yuki.isLastResponseError()));
         userInput.clear();
     }
 }

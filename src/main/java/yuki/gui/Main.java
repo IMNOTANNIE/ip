@@ -27,9 +27,8 @@ public class Main extends Application {
 
             stage.setScene(new Scene(mainLayout));
             stage.setTitle("Yuki");
-            stage.setResizable(false);
-            stage.setMinHeight(600.0);
-            stage.setMinWidth(400.0);
+            stage.setMinHeight(220.0);
+            stage.setMinWidth(417.0);
             stage.show();
         } catch (IOException e) {
             throw new IllegalStateException("Unable to load the main window.", e);

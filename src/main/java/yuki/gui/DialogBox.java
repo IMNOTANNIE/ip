@@ -15,7 +15,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 
 /**
- * Displays one message together with the speaker's avatar.
+ * Displays one message, with an avatar when one is supplied.
  */
 public class DialogBox extends HBox {
     /** Displays the message text. */
@@ -37,18 +37,21 @@ public class DialogBox extends HBox {
         }
 
         dialog.setText(message);
-        displayPicture.setImage(image);
+        if (image == null) {
+            getChildren().remove(displayPicture);
+        } else {
+            displayPicture.setImage(image);
+        }
     }
 
     /**
      * Creates a dialog box for a message sent by the user.
      *
      * @param message Message to display.
-     * @param image Avatar of the user.
      * @return A right-aligned dialog box for the user.
      */
-    public static DialogBox getUserDialog(String message, Image image) {
-        return new DialogBox(message, image);
+    public static DialogBox getUserDialog(String message) {
+        return new DialogBox(message, null);
     }
 
     /**
@@ -59,8 +62,23 @@ public class DialogBox extends HBox {
      * @return A left-aligned dialog box for Yuki.
      */
     public static DialogBox getYukiDialog(String message, Image image) {
+        return getYukiDialog(message, image, false);
+    }
+
+    /**
+     * Creates a dialog box for a response sent by Yuki and highlights errors.
+     *
+     * @param message Message to display.
+     * @param image Avatar of Yuki.
+     * @param isError Whether the response reports an invalid command.
+     * @return A left-aligned dialog box for Yuki.
+     */
+    public static DialogBox getYukiDialog(String message, Image image, boolean isError) {
         DialogBox dialogBox = new DialogBox(message, image);
         dialogBox.flip();
+        if (isError) {
+            dialogBox.dialog.getStyleClass().add("error-label");
+        }
         return dialogBox;
     }
 
@@ -70,5 +88,6 @@ public class DialogBox extends HBox {
         Collections.reverse(children);
         getChildren().setAll(children);
         setAlignment(Pos.TOP_LEFT);
+        dialog.getStyleClass().add("reply-label");
     }
 }
