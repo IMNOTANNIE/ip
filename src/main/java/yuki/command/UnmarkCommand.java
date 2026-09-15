@@ -1,5 +1,6 @@
 package yuki.command;
 
+import yuki.exception.YukiException;
 import yuki.storage.Storage;
 import yuki.task.Task;
 import yuki.task.TaskList;
@@ -27,7 +28,12 @@ public class UnmarkCommand extends Command {
         Task task = tasks.unmarkTask(taskNumber);
         assert !task.isDone() : "A task returned by unmarkTask must be marked as not done";
 
+        try {
+            storage.saveTasks(tasks.getTasks());
+        } catch (YukiException e) {
+            task.markAsDone();
+            throw e;
+        }
         ui.showTaskStatusChanged("The task is no longer marked as done:", task);
-        storage.saveTasks(tasks.getTasks());
     }
 }

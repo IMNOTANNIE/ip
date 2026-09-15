@@ -1,5 +1,7 @@
 package yuki.task;
 
+import java.util.Objects;
+
 import yuki.time.DateTimeParser;
 import yuki.time.TaskDateTime;
 
@@ -18,7 +20,7 @@ public class Deadline extends Task {
      */
     public Deadline(String description, TaskDateTime by) {
         super(description);
-        this.by = by;
+        this.by = Objects.requireNonNull(by, "deadline must not be null");
     }
 
     /**
@@ -28,6 +30,13 @@ public class Deadline extends Task {
      */
     public TaskDateTime getBy() {
         return by;
+    }
+
+    /** Returns whether another deadline has the same description and due date. */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return super.hasSameDetails(other)
+                && by.hasSameValueAs(((Deadline) other).by);
     }
 
     /**

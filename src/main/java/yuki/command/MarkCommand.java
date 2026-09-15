@@ -1,5 +1,6 @@
 package yuki.command;
 
+import yuki.exception.YukiException;
 import yuki.storage.Storage;
 import yuki.task.Task;
 import yuki.task.TaskList;
@@ -27,7 +28,12 @@ public class MarkCommand extends Command {
         Task task = tasks.markTask(taskNumber);
         assert task.isDone() : "A task returned by markTask must be marked as done";
 
+        try {
+            storage.saveTasks(tasks.getTasks());
+        } catch (YukiException e) {
+            task.markAsNotDone();
+            throw e;
+        }
         ui.showTaskStatusChanged("It's done now... I think.", task);
-        storage.saveTasks(tasks.getTasks());
     }
 }

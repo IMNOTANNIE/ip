@@ -24,6 +24,8 @@ public class Yuki {
     private final Clock clock;
     /** Indicates whether the most recent GUI response reports an invalid command. */
     private boolean isLastResponseError;
+    /** Loading problem to display after the user interface is ready. */
+    private final String loadingErrorMessage;
 
     /**
      * Creates Yuki and loads saved tasks before the command loop begins.
@@ -44,14 +46,16 @@ public class Yuki {
         this.clock = clock;
 
         TaskList loadedTasks;
+        String loadError = null;
         try {
             loadedTasks = new TaskList(storage.loadTasks());
         } catch (YukiException e) {
             // Keep the chatbot usable even if the saved file is damaged.
             loadedTasks = new TaskList();
-            ui.showLoadingError(e.getMessage());
+            loadError = e.getMessage();
         }
         tasks = loadedTasks;
+        loadingErrorMessage = loadError;
     }
 
     /**
@@ -114,6 +118,12 @@ public class Yuki {
      * @return The reminder response, or an empty string when no task is due soon.
      */
     public String getStartupReminderResponse() {
+        if (loadingErrorMessage != null) {
+            isLastResponseError = true;
+            ui.showLoadingError(loadingErrorMessage);
+            return ui.getLastResponse();
+        }
+        isLastResponseError = false;
         RemindersCommand command = new RemindersCommand(clock);
         if (!command.executeIfAny(tasks, ui)) {
             return "";

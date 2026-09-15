@@ -50,7 +50,8 @@ public class MainWindow extends AnchorPane {
         String startupReminder = yuki.getStartupReminderResponse();
         if (!startupReminder.isBlank()) {
             dialogContainer.getChildren().add(
-                    DialogBox.getYukiDialog(startupReminder, yukiImage));
+                    DialogBox.getYukiDialog(startupReminder, yukiImage,
+                            yuki.isLastResponseError()));
         }
     }
 

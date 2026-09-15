@@ -43,7 +43,8 @@ class ParserTest {
 
     @Test
     void parse_deadlineCommand_addsDeadlineWithParsedDateTime() {
-        Task task = parseAndExecuteAddCommand("deadline submit report /by 2/12/2026 1800");
+        Task task = parseAndExecuteAddCommand(
+                "  deadline   submit   report    /by    2/12/2026 1800  ");
         Deadline deadline = assertInstanceOf(Deadline.class, task);
 
         assertAll(() -> assertEquals("submit report", deadline.getDescription()), () ->
@@ -86,13 +87,56 @@ class ParserTest {
         YukiException exception = assertThrows(YukiException.class, () ->
                 Parser.parse("event meeting /from 7/8/2026 /to 6/8/2026"));
 
-        assertTrue(exception.getMessage().contains("before its start time"));
+        assertTrue(exception.getMessage().contains("later than its start"));
+    }
+
+    @Test
+    void parse_eventEndSameAsStart_exceptionThrown() {
+        assertThrows(YukiException.class, () -> Parser.parse(
+                "event meeting /from 7/8/2026 1800 /to 7/8/2026 1800"));
+    }
+
+    @Test
+    void parse_eventWithMixedDatePrecision_exceptionThrown() {
+        assertThrows(YukiException.class, () -> Parser.parse(
+                "event meeting /from 7/8/2026 /to 7/8/2026 1800"));
+    }
+
+    @Test
+    void parse_unrecognizedOrNonexistentDate_originalTextStored() {
+        Deadline deadline = assertInstanceOf(Deadline.class,
+                parseAndExecuteAddCommand("deadline submit report /by 30/2/2026"));
+        Event event = assertInstanceOf(Event.class, parseAndExecuteAddCommand(
+                "event meeting /from 31/4/2026 /to someday"));
+
+        assertAll(() -> assertEquals("30/2/2026", deadline.getBy().getText()), () ->
+                assertEquals("31/4/2026", event.getFrom().getText()), () ->
+                assertEquals("someday", event.getTo().getText()));
+    }
+
+    @Test
+    void parse_repeatedParameters_exceptionThrown() {
+        assertAll(() -> assertThrows(YukiException.class, () -> Parser.parse(
+                        "deadline report /by 1/5/2026 /by 2/5/2026")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse(
+                        "event meeting /from 1/5/2026 /from 2/5/2026 /to 3/5/2026")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse(
+                        "event meeting /from 1/5/2026 /to 2/5/2026 /to 3/5/2026")));
     }
 
     @Test
     void parse_numberedCommandWithoutValidNumber_exceptionThrown() {
         assertAll(() -> assertThrows(YukiException.class, () -> Parser.parse("mark")), () ->
-                assertThrows(YukiException.class, () -> Parser.parse("delete first")));
+                assertThrows(YukiException.class, () -> Parser.parse("delete first")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse("mark 0")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse("mark +1")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse("mark 1 2")));
+    }
+
+    @Test
+    void parse_nullOrMultilineCommand_exceptionThrown() {
+        assertAll(() -> assertThrows(YukiException.class, () -> Parser.parse(null)), () ->
+                assertThrows(YukiException.class, () -> Parser.parse("todo first\ntodo second")));
     }
 
     @Test
