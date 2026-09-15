@@ -11,15 +11,18 @@
             prefHeight="600.0" prefWidth="400.0"
             xmlns="http://javafx.com/javafx/17"
             xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="yuki.gui.MainWindow">
+            fx:controller="yuki.gui.MainWindow"
+            stylesheets="@../css/main.css">
     <children>
         <TextField fx:id="userInput"
                    layoutY="558.0"
                    onAction="#handleUserInput"
                    prefHeight="41.0"
                    prefWidth="324.0"
+                   promptText="Enter a command..."
                    AnchorPane.bottomAnchor="1.0"
-                   AnchorPane.leftAnchor="1.0" />
+                   AnchorPane.leftAnchor="1.0"
+                   AnchorPane.rightAnchor="82.0" />
         <Button fx:id="sendButton"
                 layoutX="324.0"
                 layoutY="558.0"
@@ -36,6 +39,7 @@
                     prefHeight="557.0"
                     prefWidth="400.0"
                     vbarPolicy="ALWAYS"
+                    AnchorPane.bottomAnchor="43.0"
                     AnchorPane.leftAnchor="0.0"
                     AnchorPane.rightAnchor="0.0"
                     AnchorPane.topAnchor="0.0">

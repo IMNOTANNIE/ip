@@ -22,6 +22,8 @@ public class Yuki {
     private final Ui ui;
     /** Supplies the current time for reminder queries. */
     private final Clock clock;
+    /** Indicates whether the most recent GUI response reports an invalid command. */
+    private boolean isLastResponseError;
 
     /**
      * Creates Yuki and loads saved tasks before the command loop begins.
@@ -90,13 +92,20 @@ public class Yuki {
      * @return Yuki's response to the message.
      */
     public String getResponse(String input) {
+        isLastResponseError = false;
         try {
             Command command = Parser.parse(input, clock);
             command.execute(tasks, ui, storage);
         } catch (YukiException e) {
+            isLastResponseError = true;
             ui.showError(e.getMessage());
         }
         return ui.getLastResponse();
+    }
+
+    /** Returns whether the most recent response reports an invalid command. */
+    public boolean isLastResponseError() {
+        return isLastResponseError;
     }
 
     /**

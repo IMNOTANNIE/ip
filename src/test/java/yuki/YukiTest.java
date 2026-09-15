@@ -1,6 +1,6 @@
 package yuki;
 
-import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Clock;
@@ -26,10 +26,13 @@ class YukiTest {
         Yuki yuki = new Yuki(Ui.createSilentUi(), new NoOpStorage());
 
         String addResponse = yuki.getResponse("todo read book");
+        boolean isAddResponseError = yuki.isLastResponseError();
         String listResponse = yuki.getResponse("list");
 
-        assertAll(() -> assertTrue(addResponse.contains("I've added it")), () ->
-                assertTrue(listResponse.contains("1.[T][ ] read book")));
+        assertTrue(addResponse.contains("I've added it"));
+        assertFalse(isAddResponseError);
+        assertTrue(listResponse.contains("1.[T][ ] read book"));
+        assertFalse(yuki.isLastResponseError());
     }
 
     @Test
@@ -39,6 +42,7 @@ class YukiTest {
         String response = yuki.getResponse("unknown command");
 
         assertTrue(response.contains("I couldn't process that"));
+        assertTrue(yuki.isLastResponseError());
     }
 
     @Test
