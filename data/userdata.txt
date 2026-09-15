@@ -1,2 +1,2 @@
-D | 1 | submit report | D:2026-09-09
-D | 0 | quiz | S:next Tuesday
+E | 0 | meeting | DT:2026-09-18T18:00 | DT:2026-09-18T18:30
+D | 0 | CS2106 Quiz | DT:2026-09-16T11:55
