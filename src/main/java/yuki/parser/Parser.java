@@ -231,7 +231,7 @@ public final class Parser {
     private static void validateNoArguments(String command, CommandType commandType) {
         if (!command.trim().equals(commandType.getKeyword())) {
             throw new YukiException(
-                    "..There’s no need to add anything else to the "
+                    "There’s no need to add anything else to the "
                             + commandType.getKeyword() + " command.");
         }
     }

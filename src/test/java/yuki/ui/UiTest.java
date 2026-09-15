@@ -68,7 +68,8 @@ class UiTest {
         ui.showGoodbye();
 
         String newline = System.lineSeparator();
-        assertAll(() -> assertTrue(welcome.contains("...Hello. This is Yuki.")), () ->
+        assertAll(() -> assertTrue(welcome.startsWith("__   __")), () ->
+                assertTrue(welcome.endsWith("...Hello. This is Yuki. What do you need?")), () ->
                 assertEquals("Here... These are the tasks you have:" + newline
                         + "1.[T][ ] read book" + newline + "2.[T][ ] buy food", taskList), () ->
                 assertEquals("Here... These are the matching tasks in your list:" + newline

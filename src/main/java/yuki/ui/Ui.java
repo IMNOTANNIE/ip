@@ -14,13 +14,15 @@ public class Ui {
     private static final String SEPARATOR_LINE =
             "----------------------------------------------------------"
                     + "----------------------------------------------------------";
-    /** The banner displayed when Yuki starts. */
+    /** The banner displayed when Yuki starts in the command-line interface. */
     private static final String BANNER = "__   __     _    _ \n"
             + "\\ \\ / /   _| | _(_)\n"
             + " \\ V / | | | |/ / |\n"
             + "  | || |_| |   <| |\n"
             + "  |_| \\__,_|_|\\_\\_|\n";
-
+    /** The greeting displayed when Yuki starts. */
+    private static final String WELCOME_MESSAGE =
+            "...Hello. This is Yuki. What do you need?";
     /** Reads commands entered through standard input. */
     private final Scanner scanner;
     /** Whether responses should also be printed to standard output. */
@@ -64,9 +66,14 @@ public class Ui {
         return lastResponse;
     }
 
-    /** Displays Yuki's greeting. */
+    /** Displays Yuki's command-line banner and greeting. */
     public void showWelcome() {
-        showResponse(BANNER, "...Hello. This is Yuki.", "What do you need?");
+        showResponse(BANNER, WELCOME_MESSAGE);
+    }
+
+    /** Records Yuki's greeting without the command-line banner. */
+    public void showWelcomeMessage() {
+        showResponse(WELCOME_MESSAGE);
     }
 
     /** Displays Yuki's farewell. */

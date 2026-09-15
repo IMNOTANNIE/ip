@@ -164,7 +164,11 @@ class ParserTest {
 
     @Test
     void parse_noArgumentCommandWithExtraText_exceptionThrown() {
-        assertAll(() -> assertThrows(YukiException.class, () -> Parser.parse("list now")), () ->
+        YukiException listException = assertThrows(YukiException.class, () -> Parser.parse("list now"));
+
+        assertAll(() -> assertEquals(
+                        "There’s no need to add anything else to the list command.",
+                        listException.getMessage()), () ->
                 assertThrows(YukiException.class, () -> Parser.parse("bye now")), () ->
                 assertThrows(YukiException.class, () -> Parser.parse("reminders now")));
     }

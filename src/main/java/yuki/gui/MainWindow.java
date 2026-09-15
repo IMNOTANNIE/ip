@@ -47,6 +47,9 @@ public class MainWindow extends AnchorPane {
      */
     public void setYuki(Yuki yuki) {
         this.yuki = yuki;
+        dialogContainer.getChildren().add(
+                DialogBox.getYukiDialog(yuki.getWelcomeResponse(), yukiImage, false));
+
         String startupReminder = yuki.getStartupReminderResponse();
         if (!startupReminder.isBlank()) {
             dialogContainer.getChildren().add(
