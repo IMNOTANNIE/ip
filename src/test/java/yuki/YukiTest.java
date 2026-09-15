@@ -26,6 +26,16 @@ import yuki.ui.Ui;
 class YukiTest {
 
     @Test
+    void getWelcomeResponse_applicationStarts_welcomeReturned() {
+        Yuki yuki = new Yuki(Ui.createSilentUi(), new NoOpStorage());
+
+        String response = yuki.getWelcomeResponse();
+
+        assertEquals("...Hello. This is Yuki. What do you need?", response);
+        assertFalse(yuki.isLastResponseError());
+    }
+
+    @Test
     void getResponse_supportedCommands_actualResponsesReturned() {
         Yuki yuki = new Yuki(Ui.createSilentUi(), new NoOpStorage());
 

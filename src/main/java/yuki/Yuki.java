@@ -107,6 +107,13 @@ public class Yuki {
         return ui.getLastResponse();
     }
 
+    /** Returns Yuki's welcome message. */
+    public String getWelcomeResponse() {
+        isLastResponseError = false;
+        ui.showWelcomeMessage();
+        return ui.getLastResponse();
+    }
+
     /** Returns whether the most recent response reports an invalid command. */
     public boolean isLastResponseError() {
         return isLastResponseError;
