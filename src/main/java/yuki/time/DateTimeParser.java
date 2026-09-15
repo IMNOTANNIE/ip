@@ -8,6 +8,7 @@ import java.time.format.DateTimeFormatterBuilder;
 import java.time.format.DateTimeParseException;
 import java.time.format.ResolverStyle;
 import java.util.Locale;
+import java.util.Optional;
 
 /** Parses and formats all dates and times used by Yuki. */
 public final class DateTimeParser {
@@ -42,18 +43,34 @@ public final class DateTimeParser {
      * @return A parsed date-time, or the unchanged text if no date format matches.
      */
     public static TaskDateTime parse(String text) {
+        return tryParseDateTime(text)
+                .map(TaskDateTime::of)
+                .orElseGet(() -> parseDateOrText(text));
+    }
+
+    /** Returns a parsed date, or preserves the original text when no date format matches. */
+    private static TaskDateTime parseDateOrText(String text) {
+        return tryParseDate(text, DATE_INPUT_FORMAT)
+                .or(() -> tryParseDate(text, DateTimeFormatter.ISO_LOCAL_DATE))
+                .map(TaskDateTime::of)
+                .orElseGet(() -> TaskDateTime.of(text));
+    }
+
+    /** Attempts to parse text using Yuki's supported date-time format. */
+    private static Optional<LocalDateTime> tryParseDateTime(String text) {
         try {
-            return TaskDateTime.of(LocalDateTime.parse(text, DATE_TIME_INPUT_FORMAT));
+            return Optional.of(LocalDateTime.parse(text, DATE_TIME_INPUT_FORMAT));
         } catch (DateTimeParseException e) {
-            try {
-                return TaskDateTime.of(LocalDate.parse(text, DATE_INPUT_FORMAT));
-            } catch (DateTimeParseException ignored) {
-                try {
-                    return TaskDateTime.of(LocalDate.parse(text));
-                } catch (DateTimeParseException alsoIgnored) {
-                    return TaskDateTime.of(text);
-                }
-            }
+            return Optional.empty();
+        }
+    }
+
+    /** Attempts to parse text using the supplied date format. */
+    private static Optional<LocalDate> tryParseDate(String text, DateTimeFormatter format) {
+        try {
+            return Optional.of(LocalDate.parse(text, format));
+        } catch (DateTimeParseException e) {
+            return Optional.empty();
         }
     }
 

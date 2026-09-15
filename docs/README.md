@@ -1,57 +1,159 @@
 # Yuki User Guide
 
-Yuki is a task manager that accepts commands through its graphical or command-line interface.
+Yuki is a desktop task manager for people who prefer typing short commands. It keeps to-dos,
+deadlines, and events in one list, saves changes automatically, and highlights tasks due within the
+next 24 hours.
 
-## Entering tasks safely
+## Quick start
 
-Yuki ignores leading and trailing spaces and accepts multiple spaces between command parts. For
-example, `deadline   submit report   /by   26/8/2026 1800` is valid. Descriptions are stored with
-single spaces so that an accidental spacing difference does not create a duplicate task.
+1. Install [Java 25](https://www.oracle.com/java/technologies/downloads/).
+2. Download `yuki.jar` from the project's
+   [Releases page](https://github.com/IMNOTANNIE/ip/releases) and place it in a folder of your choice.
+3. Open a terminal in that folder and run:
 
-Yuki recognizes dates written as `d/M/yyyy` or `d/M/yyyy HHmm` (a colon in the time is also
-accepted). If a value cannot be parsed, including a nonexistent date such as `30/2/2026`, Yuki
-preserves it as ordinary text. When both event values are parsed dates, they must either both include
-a time or both omit it, and the event's end must be later than its start.
+   ```shell
+   java -jar yuki.jar
+   ```
 
-Each deadline must contain exactly one `/by` parameter. Each event must contain exactly one `/from`
-and one `/to` parameter, in that order. Yuki also rejects duplicate tasks and invalid task numbers
-instead of changing the task list.
+4. Type a command into the box and press <kbd>Enter</kbd> or click **Send**.
 
-If the data file is missing, Yuki starts with an empty task list and creates the file when a task is
-saved. If the file is unreadable or contains invalid data, Yuki reports the problem and continues to
-accept read-only commands. It blocks saves until the file is repaired or moved and Yuki is restarted,
-which prevents unreadable data from being overwritten accidentally. Saves use a temporary file so
-that an interrupted write does not partly overwrite the last valid task list.
+Yuki creates `data/userdata.txt` in the folder from which it is run and saves every change there
+automatically.
 
-## Viewing upcoming tasks
+> [!TIP]
+> Enter `list` at any time to see your task numbers and current task status.
 
-Enter `reminders` to list incomplete deadlines and events that are due within the next 24 hours.
-Yuki also displays the same reminder automatically when it starts, but stays quiet when no task is
-due soon.
+## Command format
 
-```text
-reminders
-```
+- Use command words and parameters in lowercase exactly as shown.
+- Replace words in `UPPER_CASE` with your own values. Do not type the underscores.
+- Extra spaces before, after, or between command parts are ignored.
+- Use a task's number from `list` with `mark`, `unmark`, and `delete`.
 
-Example output:
+Dates can be entered as `d/M/yyyy`, `d/M/yyyy HHmm`, or `d/M/yyyy HH:mm`.
+For example, `6/8/2026`, `6/8/2026 1800`, and `6/8/2026 18:00` are valid. You can also enter free
+text such as `Friday`, but Yuki can include a task in reminders only when its date uses a supported
+format.
 
-```text
-Here... These tasks are due in the next 24 hours:
-2.[D][ ] submit report (by: Sep 10 2026 18:00)
-4.[E][ ] project demo (from: Sep 10 2026 20:00 to: Sep 10 2026 21:00)
-```
+## Features
 
-If no task is due soon, Yuki responds with:
+### Adding a to-do: `todo`
 
-```text
-You have no tasks due in the next 24 hours.
-```
+Adds a task without a date.
 
-The 24-hour window includes tasks due at the current minute and exactly 24 hours later. Deadlines
-use their due time, while events use their start time. A date without a time is treated as 23:59 on
-that date. Completed tasks, todo tasks, and tasks with dates that Yuki could not parse are omitted.
+Format: `todo DESCRIPTION`
 
-Task numbers remain the same as in the main task list, even when upcoming tasks are displayed in a
-different order. The command does not change or save any task.
+Example: `todo read a book`
 
-The command takes no additional arguments. For example, `reminders tomorrow` is invalid.
+### Adding a deadline: `deadline`
+
+Adds a task that must be completed by a date or time.
+
+Format: `deadline DESCRIPTION /by DATE`
+
+Example: `deadline submit report /by 26/8/2026 1800`
+
+Use `/by` exactly once and place it between the description and date.
+
+### Adding an event: `event`
+
+Adds an activity with a start and an end.
+
+Format: `event DESCRIPTION /from START /to END`
+
+Example: `event project meeting /from 26/8/2026 1800 /to 26/8/2026 2000`
+
+Use `/from` and `/to` exactly once and in that order. When both values are supported dates, they
+must either both include a time or both omit it, and the end must be later than the start.
+
+### Viewing all tasks: `list`
+
+Shows every task in the order it was added.
+
+Format: `list`
+
+The symbols identify each task:
+
+- `[T]` — to-do
+- `[D]` — deadline
+- `[E]` — event
+- `[X]` — completed; `[ ]` — not completed
+
+### Finding tasks: `find`
+
+Shows tasks whose descriptions contain the keyword or phrase. Matching is not case-sensitive.
+
+Format: `find KEYWORD`
+
+Example: `find report`
+
+> [!NOTE]
+> Numbers in the search results indicate the result order. Use `list` to find the task number needed
+> by `mark`, `unmark`, or `delete`.
+
+### Viewing upcoming tasks: `reminders`
+
+Shows incomplete deadlines and events due from the current minute through the next 24 hours. Yuki
+also displays this list automatically when it starts, but stays quiet when nothing is due soon.
+
+Format: `reminders`
+
+Deadlines use their due time; events use their start time. A date without a time is treated as 23:59
+on that date. To-dos, completed tasks, and dates entered as free text are not included. The displayed
+task numbers are the same as those shown by `list`.
+
+### Marking a task as completed: `mark`
+
+Format: `mark TASK_NUMBER`
+
+Example: `mark 2`
+
+### Marking a task as not completed: `unmark`
+
+Format: `unmark TASK_NUMBER`
+
+Example: `unmark 2`
+
+### Deleting a task: `delete`
+
+Permanently removes a task from the list.
+
+Format: `delete TASK_NUMBER`
+
+Example: `delete 2`
+
+### Exiting Yuki: `bye`
+
+Ends a command-line session. In the desktop window, close Yuki using the window's close button. Your
+latest changes have already been saved.
+
+Format: `bye`
+
+## Command summary
+
+| Action | Command |
+| --- | --- |
+| Add a to-do | `todo DESCRIPTION` |
+| Add a deadline | `deadline DESCRIPTION /by DATE` |
+| Add an event | `event DESCRIPTION /from START /to END` |
+| View all tasks | `list` |
+| Find tasks | `find KEYWORD` |
+| View tasks due soon | `reminders` |
+| Mark a task completed | `mark TASK_NUMBER` |
+| Mark a task not completed | `unmark TASK_NUMBER` |
+| Delete a task | `delete TASK_NUMBER` |
+| Exit Yuki | `bye` |
+
+## If something goes wrong
+
+Yuki explains invalid commands without closing, so you can correct the command and try again. It
+also rejects duplicate tasks and task numbers that are not in the list.
+
+If `data/userdata.txt` is missing, Yuki starts with an empty list and creates the file when it first
+saves a task. If the file cannot be read or contains invalid data, Yuki reports the problem and
+blocks changes to protect the existing file. Repair or move the file, then restart Yuki.
+
+## AI assistance
+
+The project author used OpenAI Codex to identify potential issues in the code and to help implement
+some methods and unit tests; the author reviewed and verified the resulting changes.
