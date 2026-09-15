@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,14 @@ import yuki.time.TaskDateTime;
 
 /** Tests the ordered task collection and its user-facing numbering rules. */
 class TaskListTest {
+    @Test
+    void constructor_nullListOrTask_exceptionThrown() {
+        assertAll(() -> assertThrows(NullPointerException.class, () ->
+                new TaskList(null)), () ->
+                assertThrows(NullPointerException.class, () ->
+                        new TaskList(Arrays.asList(new ToDo("valid"), null))));
+    }
+
     @Test
     void addAndGetTask_validTaskNumber_taskStoredAtOneBasedNumber() {
         TaskList tasks = new TaskList();
@@ -109,6 +118,15 @@ class TaskListTest {
     }
 
     @Test
+    void findTasks_blankKeyword_allTasksReturnedInOrder() {
+        Task first = new ToDo("first");
+        Task second = new ToDo("second");
+        TaskList tasks = new TaskList(List.of(first, second));
+
+        assertEquals(List.of(first, second), tasks.findTasks(""));
+    }
+
+    @Test
     void getTasks_listLaterChanged_snapshotRemainsUnmodifiableAndUnchanged() {
         TaskList tasks = new TaskList(List.of(new ToDo("first")));
         List<Task> snapshot = tasks.getTasks();
@@ -150,6 +168,17 @@ class TaskListTest {
 
         assertEquals(List.of(1, 2),
                 tasks.findUpcomingTaskNumbers(now, now.plusHours(24)));
+    }
+
+    @Test
+    void findUpcomingTaskNumbers_sameTime_taskListOrderUsedAsTieBreaker() {
+        LocalDateTime dueTime = LocalDateTime.of(2026, 9, 9, 10, 0);
+        TaskList tasks = new TaskList(List.of(
+                new Deadline("first", TaskDateTime.of(dueTime)),
+                new Deadline("second", TaskDateTime.of(dueTime))));
+
+        assertEquals(List.of(1, 2),
+                tasks.findUpcomingTaskNumbers(dueTime.minusHours(1), dueTime.plusHours(1)));
     }
 
     @Test

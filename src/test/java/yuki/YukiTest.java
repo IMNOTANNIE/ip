@@ -1,5 +1,6 @@
 package yuki;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -7,7 +8,9 @@ import java.time.Clock;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Deque;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -91,8 +94,36 @@ class YukiTest {
         assertTrue(yuki.getStartupReminderResponse().isEmpty());
     }
 
+    @Test
+    void run_commandsIncludeErrorAndExit_loopStopsAfterExit() {
+        ScriptedUi ui = new ScriptedUi(List.of(
+                "todo read book", "unknown", "bye", "todo ignored"));
+        NoOpStorage storage = new NoOpStorage();
+        Yuki yuki = new Yuki(ui, storage);
+
+        yuki.run();
+
+        assertTrue(ui.isWelcomeShown);
+        assertTrue(ui.isGoodbyeShown);
+        assertTrue(ui.errors.get(0).contains("isn't familiar"));
+        assertEquals("read book", storage.savedTasks.get(0).getDescription());
+        assertEquals(1, ui.commands.size());
+    }
+
+    @Test
+    void run_inputAlreadyEnded_welcomeShownWithoutReadingCommand() {
+        ScriptedUi ui = new ScriptedUi(List.of());
+
+        new Yuki(ui, new NoOpStorage()).run();
+
+        assertTrue(ui.isWelcomeShown);
+        assertFalse(ui.isGoodbyeShown);
+    }
+
     /** Storage test double that avoids reading and writing the user's data file. */
     private static class NoOpStorage extends Storage {
+        private List<Task> savedTasks = new ArrayList<>();
+
         @Override
         public ArrayList<Task> loadTasks() {
             return new ArrayList<>();
@@ -100,7 +131,49 @@ class YukiTest {
 
         @Override
         public void saveTasks(List<Task> tasks) {
-            // Persistence behavior is covered by StorageTest.
+            savedTasks = new ArrayList<>(tasks);
+        }
+    }
+
+    /** UI test double that supplies a fixed command sequence to the command loop. */
+    private static class ScriptedUi extends Ui {
+        private final Deque<String> commands;
+        private final List<String> errors = new ArrayList<>();
+        private boolean isWelcomeShown;
+        private boolean isGoodbyeShown;
+
+        ScriptedUi(List<String> commands) {
+            this.commands = new ArrayDeque<>(commands);
+        }
+
+        @Override
+        public boolean hasNextCommand() {
+            return !commands.isEmpty();
+        }
+
+        @Override
+        public String readCommand() {
+            return commands.removeFirst();
+        }
+
+        @Override
+        public void showWelcome() {
+            isWelcomeShown = true;
+        }
+
+        @Override
+        public void showGoodbye() {
+            isGoodbyeShown = true;
+        }
+
+        @Override
+        public void showError(String message) {
+            errors.add(message);
+        }
+
+        @Override
+        public void showTaskAdded(Task task, int taskCount) {
+            // The test observes the stored task instead of console output.
         }
     }
 

@@ -30,6 +30,13 @@ class StorageTest {
     Path tempDirectory;
 
     @Test
+    void constructor_nullOrRootPath_exceptionThrown() {
+        assertAll(() -> assertThrows(NullPointerException.class, () -> new Storage(null)), () ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        new Storage(tempDirectory.getRoot())));
+    }
+
+    @Test
     void loadTasks_missingFile_emptyListReturned() {
         Storage storage = new Storage(tempDirectory.resolve("missing.txt"));
 
@@ -48,6 +55,19 @@ class StorageTest {
 
         assertAll(() -> assertEquals(1, restored.size()), () ->
                 assertEquals("read book", restored.get(0).getDescription()));
+    }
+
+    @Test
+    void loadTasks_dataPathIsDirectory_readErrorBlocksSaving() throws IOException {
+        Path dataDirectory = tempDirectory.resolve("userdata.txt");
+        Files.createDirectory(dataDirectory);
+        Storage storage = new Storage(dataDirectory);
+
+        assertThrows(YukiException.class, storage::loadTasks);
+        YukiException saveException = assertThrows(YukiException.class, () ->
+                storage.saveTasks(List.of(new ToDo("read book"))));
+
+        assertTrue(saveException.getMessage().contains("won't overwrite"));
     }
 
     @Test
@@ -89,6 +109,23 @@ class StorageTest {
     }
 
     @Test
+    void loadTasks_invalidTypeFieldsDescriptionOrDate_exceptionThrown() throws IOException {
+        List<String> invalidLines = List.of(
+                "X | 0 | task",
+                "T",
+                "T | 0 | task | extra",
+                "T | 0 | ",
+                "D | 0 | report | DT:not-a-date");
+
+        for (int index = 0; index < invalidLines.size(); index++) {
+            Path dataFile = tempDirectory.resolve("invalid-" + index + ".txt");
+            Files.writeString(dataFile, invalidLines.get(index), StandardCharsets.UTF_8);
+
+            assertThrows(YukiException.class, () -> new Storage(dataFile).loadTasks());
+        }
+    }
+
+    @Test
     void loadTasks_invalidEventRange_exceptionIncludesLineNumber() throws IOException {
         Path dataFile = tempDirectory.resolve("userdata.txt");
         Files.writeString(dataFile, "T | 0 | valid" + System.lineSeparator()
@@ -114,6 +151,35 @@ class StorageTest {
 
         assertAll(() -> assertTrue(exception.getMessage().contains("duplicates")), () ->
                 assertEquals(invalidContent, Files.readString(dataFile, StandardCharsets.UTF_8)));
+    }
+
+    @Test
+    void loadTasks_invalidFileThenRepaired_savingAllowedAfterSuccessfulReload() throws IOException {
+        Path dataFile = tempDirectory.resolve("userdata.txt");
+        Storage storage = new Storage(dataFile);
+        Files.writeString(dataFile, "X | 0 | broken", StandardCharsets.UTF_8);
+        assertThrows(YukiException.class, storage::loadTasks);
+
+        Files.writeString(dataFile, "T | 0 | repaired", StandardCharsets.UTF_8);
+        assertEquals(1, storage.loadTasks().size());
+        storage.saveTasks(List.of(new ToDo("replacement")));
+
+        assertTrue(Files.readString(dataFile, StandardCharsets.UTF_8).contains("replacement"));
+    }
+
+    @Test
+    void saveTasks_nullDuplicateOrUnknownTasks_exceptionLeavesFileUnchanged() throws IOException {
+        Path dataFile = tempDirectory.resolve("userdata.txt");
+        Files.writeString(dataFile, "keep me", StandardCharsets.UTF_8);
+        Storage storage = new Storage(dataFile);
+
+        assertAll(() -> assertThrows(NullPointerException.class, () ->
+                        storage.saveTasks(null)), () ->
+                assertThrows(YukiException.class, () -> storage.saveTasks(List.of(
+                        new ToDo("read book"), new ToDo("READ BOOK")))), () ->
+                assertThrows(IllegalArgumentException.class, () ->
+                        storage.saveTasks(List.of(new Task("unsupported")))));
+        assertEquals("keep me", Files.readString(dataFile, StandardCharsets.UTF_8));
     }
 
     @Test

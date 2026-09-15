@@ -24,6 +24,15 @@ class RemindersCommandTest {
             Instant.parse("2026-09-09T01:00:00Z"), ZoneOffset.ofHours(8));
 
     @Test
+    void execute_defaultClockWithEmptyList_emptyResultMessageDisplayed() {
+        Ui ui = Ui.createSilentUi();
+
+        new RemindersCommand().execute(new TaskList(), ui, new Storage());
+
+        assertEquals("You have no tasks due in the next 24 hours.", ui.getLastResponse());
+    }
+
+    @Test
     void execute_upcomingTask_originalTaskNumberDisplayed() {
         TaskList tasks = new TaskList(List.of(
                 new ToDo("not dated"),
