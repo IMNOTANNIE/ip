@@ -1,5 +1,6 @@
 package yuki.command;
 
+import yuki.exception.YukiException;
 import yuki.storage.Storage;
 import yuki.task.Task;
 import yuki.task.TaskList;
@@ -29,7 +30,12 @@ public class AddCommand extends Command {
         assert tasks.size() == previousTaskCount + 1
                 : "Adding one task must increase the task count by one";
 
-        storage.saveTasks(tasks.getTasks());
+        try {
+            storage.saveTasks(tasks.getTasks());
+        } catch (YukiException e) {
+            tasks.deleteTask(tasks.size());
+            throw e;
+        }
         ui.showTaskAdded(task, tasks.size());
     }
 }

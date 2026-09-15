@@ -57,6 +57,12 @@ public class TaskDateTime {
      */
     public static TaskDateTime of(String text) {
         Objects.requireNonNull(text, "text must not be null");
+        if (text.isBlank()) {
+            throw new IllegalArgumentException("text must not be blank");
+        }
+        if (text.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException("text must not contain control characters");
+        }
         return new TaskDateTime(null, null, text);
     }
 
@@ -102,9 +108,25 @@ public class TaskDateTime {
 
     /** Compares values of the same parsed type; text or mixed values are not ordered here. */
     public boolean isBefore(TaskDateTime other) {
+        Objects.requireNonNull(other, "other must not be null");
         if (hasDateTime() && other.hasDateTime()) {
             return dateTime.isBefore(other.dateTime);
         }
         return hasDateOnly() && other.hasDateOnly() && date.isBefore(other.date);
+    }
+
+    /** Returns whether this value and another value use the same comparable date representation. */
+    public boolean hasComparableType(TaskDateTime other) {
+        Objects.requireNonNull(other, "other must not be null");
+        return hasDateTime() && other.hasDateTime()
+                || hasDateOnly() && other.hasDateOnly();
+    }
+
+    /** Returns whether this value stores exactly the same date, date-time, or text as another value. */
+    public boolean hasSameValueAs(TaskDateTime other) {
+        return other != null
+                && Objects.equals(date, other.date)
+                && Objects.equals(dateTime, other.dateTime)
+                && Objects.equals(text, other.text);
     }
 }

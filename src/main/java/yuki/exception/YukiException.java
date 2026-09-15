@@ -12,4 +12,14 @@ public class YukiException extends RuntimeException {
     public YukiException(String message) {
         super(message);
     }
+
+    /**
+     * Creates an exception with a user-facing message and its underlying cause.
+     *
+     * @param message Explanation of the error.
+     * @param cause Lower-level failure that caused the error.
+     */
+    public YukiException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

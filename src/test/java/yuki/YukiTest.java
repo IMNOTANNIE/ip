@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import yuki.exception.YukiException;
 import yuki.storage.Storage;
 import yuki.task.Deadline;
 import yuki.task.Task;
@@ -42,6 +43,27 @@ class YukiTest {
         String response = yuki.getResponse("unknown command");
 
         assertTrue(response.contains("I couldn't process that"));
+        assertTrue(yuki.isLastResponseError());
+    }
+
+    @Test
+    void getResponse_saveFails_additionRolledBack() {
+        Yuki yuki = new Yuki(Ui.createSilentUi(), new FailingSaveStorage());
+
+        String response = yuki.getResponse("todo read book");
+        String listResponse = yuki.getResponse("list");
+
+        assertTrue(response.contains("couldn't save"));
+        assertFalse(listResponse.contains("read book"));
+    }
+
+    @Test
+    void getStartupReminderResponse_loadingFails_errorReturned() {
+        Yuki yuki = new Yuki(Ui.createSilentUi(), new FailingLoadStorage());
+
+        String response = yuki.getStartupReminderResponse();
+
+        assertTrue(response.contains("couldn't load"));
         assertTrue(yuki.isLastResponseError());
     }
 
@@ -93,6 +115,22 @@ class YukiTest {
         @Override
         public ArrayList<Task> loadTasks() {
             return new ArrayList<>(storedTasks);
+        }
+    }
+
+    /** Storage test double that simulates an unavailable data file during saving. */
+    private static class FailingSaveStorage extends NoOpStorage {
+        @Override
+        public void saveTasks(List<Task> tasks) {
+            throw new YukiException("I couldn't save the tasks.");
+        }
+    }
+
+    /** Storage test double that simulates an unreadable data file during loading. */
+    private static class FailingLoadStorage extends NoOpStorage {
+        @Override
+        public ArrayList<Task> loadTasks() {
+            throw new YukiException("The saved data file is unreadable.");
         }
     }
 }

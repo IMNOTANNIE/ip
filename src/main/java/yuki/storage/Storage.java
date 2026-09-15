@@ -2,18 +2,21 @@ package yuki.storage;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import yuki.exception.YukiException;
 import yuki.task.Deadline;
 import yuki.task.Event;
 import yuki.task.Task;
+import yuki.task.TaskList;
 import yuki.task.ToDo;
 import yuki.time.DateTimeParser;
 
@@ -28,6 +31,8 @@ public class Storage {
     private static final Path DEFAULT_DATA_FILE = Path.of("data", "userdata.txt");
     /** File used by this storage instance. */
     private final Path dataFile;
+    /** Whether saving is blocked to avoid overwriting data that could not be loaded. */
+    private boolean isSaveBlocked;
 
     /** Creates storage that uses Yuki's default data file. */
     public Storage() {
@@ -42,7 +47,10 @@ public class Storage {
      * @param dataFile File used to load and save tasks.
      */
     Storage(Path dataFile) {
-        this.dataFile = dataFile;
+        this.dataFile = Objects.requireNonNull(dataFile, "dataFile must not be null");
+        if (dataFile.getFileName() == null) {
+            throw new IllegalArgumentException("dataFile must identify a file");
+        }
     }
 
     /**
@@ -57,27 +65,63 @@ public class Storage {
         try {
             lines = Files.readAllLines(dataFile, StandardCharsets.UTF_8);
         } catch (NoSuchFileException e) {
+            isSaveBlocked = false;
             return new ArrayList<>();
-        } catch (IOException e) {
-            throw new YukiException("I couldn't read the saved tasks: " + e.getMessage());
+        } catch (IOException | SecurityException e) {
+            isSaveBlocked = true;
+            throw new YukiException("I couldn't read the saved tasks. Check that the data file "
+                    + "is readable and is not a folder.", e);
         }
 
-        return lines.stream()
-                .filter(line -> !line.isBlank())
-                .map(this::parseTask)
-                .collect(Collectors.toCollection(ArrayList::new));
+        try {
+            ArrayList<Task> tasks = new ArrayList<>();
+            for (int lineIndex = 0; lineIndex < lines.size(); lineIndex++) {
+                String line = lines.get(lineIndex);
+                if (line.isBlank()) {
+                    continue;
+                }
+                Task task = parseTask(line, lineIndex + 1);
+                if (tasks.stream().anyMatch(savedTask -> savedTask.hasSameDetails(task))) {
+                    throw new YukiException(
+                            "The saved task on line " + (lineIndex + 1) + " duplicates an earlier task.");
+                }
+                tasks.add(task);
+            }
+            isSaveBlocked = false;
+            return tasks;
+        } catch (YukiException e) {
+            isSaveBlocked = true;
+            throw e;
+        }
     }
 
     /** Saves the current task list, replacing the old file contents. */
     public void saveTasks(List<Task> tasks) {
+        Objects.requireNonNull(tasks, "tasks must not be null");
+        new TaskList(tasks); // Validate the complete snapshot before replacing the saved file.
+        if (isSaveBlocked) {
+            throw new YukiException("I won't overwrite a saved-task file that could not be loaded. "
+                    + "Please repair or move the data file, then restart Yuki.");
+        }
+        Path temporaryFile = null;
         try {
-            Files.createDirectories(dataFile.getParent());
+            Path absoluteDataFile = dataFile.toAbsolutePath();
+            Path parentDirectory = absoluteDataFile.getParent();
+            assert parentDirectory != null : "An absolute data-file path must have a parent";
+            Files.createDirectories(parentDirectory);
             List<String> lines = tasks.stream()
                     .map(this::formatTask)
                     .toList();
-            Files.write(dataFile, lines, StandardCharsets.UTF_8);
-        } catch (IOException e) {
-            throw new YukiException("I couldn't save the tasks: " + e.getMessage());
+            temporaryFile = Files.createTempFile(
+                    parentDirectory, absoluteDataFile.getFileName().toString(), ".tmp");
+            Files.write(temporaryFile, lines, StandardCharsets.UTF_8);
+            replaceDataFile(temporaryFile, absoluteDataFile);
+            temporaryFile = null;
+        } catch (IOException | SecurityException e) {
+            throw new YukiException("I couldn't save the tasks. Check that the data folder is writable "
+                    + "and the data file is not open in another program.", e);
+        } finally {
+            deleteTemporaryFile(temporaryFile);
         }
     }
 
@@ -101,7 +145,7 @@ public class Storage {
     }
 
     /** Converts one saved line back into a task object. */
-    private Task parseTask(String line) {
+    private Task parseTask(String line, int lineNumber) {
         String[] parts = line.trim().split("\\s*\\|\\s*", -1);
 
         try {
@@ -127,7 +171,7 @@ public class Storage {
             }
             return task;
         } catch (ArrayIndexOutOfBoundsException | IllegalArgumentException | DateTimeParseException e) {
-            throw new YukiException("This saved task seems to be invalid:: " + line);
+            throw new YukiException("The saved task on line " + lineNumber + " is invalid.", e);
         }
     }
 
@@ -147,5 +191,27 @@ public class Storage {
     /** Restores escaped characters after a task is read from the data file. */
     private String decode(String value) {
         return value.replace("%7C", "|").replace("%25", "%");
+    }
+
+    /** Atomically replaces the data file when the file system supports it. */
+    private void replaceDataFile(Path temporaryFile, Path absoluteDataFile) throws IOException {
+        try {
+            Files.move(temporaryFile, absoluteDataFile,
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException e) {
+            Files.move(temporaryFile, absoluteDataFile, StandardCopyOption.REPLACE_EXISTING);
+        }
+    }
+
+    /** Removes a leftover temporary file without hiding the original save error. */
+    private void deleteTemporaryFile(Path temporaryFile) {
+        if (temporaryFile == null) {
+            return;
+        }
+        try {
+            Files.deleteIfExists(temporaryFile);
+        } catch (IOException | SecurityException ignored) {
+            // The failed save operation already reports the actionable problem to the user.
+        }
     }
 }

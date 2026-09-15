@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -29,11 +30,21 @@ public class TaskList {
      * @param tasks Tasks loaded from storage.
      */
     public TaskList(List<Task> tasks) {
-        this.tasks = new ArrayList<>(tasks);
+        Objects.requireNonNull(tasks, "tasks must not be null");
+        this.tasks = new ArrayList<>();
+        tasks.forEach(this::addTask);
     }
 
-    /** Adds a task to the end of the list. */
+    /**
+     * Adds a unique task to the end of the list.
+     *
+     * @throws YukiException If another task already has the same details.
+     */
     public void addTask(Task task) {
+        Objects.requireNonNull(task, "task must not be null");
+        if (tasks.stream().anyMatch(existingTask -> existingTask.hasSameDetails(task))) {
+            throw new YukiException("That task is already in the list.");
+        }
         tasks.add(task);
     }
 
@@ -57,6 +68,9 @@ public class TaskList {
      */
     public Task markTask(int taskNumber) {
         Task task = getTask(taskNumber);
+        if (task.isDone()) {
+            throw new YukiException("That task is already marked as done.");
+        }
         task.markAsDone();
         return task;
     }
@@ -70,6 +84,9 @@ public class TaskList {
      */
     public Task unmarkTask(int taskNumber) {
         Task task = getTask(taskNumber);
+        if (!task.isDone()) {
+            throw new YukiException("That task is already marked as not done.");
+        }
         task.markAsNotDone();
         return task;
     }

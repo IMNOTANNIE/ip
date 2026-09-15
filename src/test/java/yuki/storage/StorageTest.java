@@ -87,4 +87,43 @@ class StorageTest {
 
         assertTrue(exception.getMessage().contains("invalid"));
     }
+
+    @Test
+    void loadTasks_invalidEventRange_exceptionIncludesLineNumber() throws IOException {
+        Path dataFile = tempDirectory.resolve("userdata.txt");
+        Files.writeString(dataFile, "T | 0 | valid" + System.lineSeparator()
+                + "E | 0 | meeting | D:2026-08-07 | D:2026-08-07", StandardCharsets.UTF_8);
+        Storage storage = new Storage(dataFile);
+
+        YukiException exception = assertThrows(YukiException.class, storage::loadTasks);
+
+        assertTrue(exception.getMessage().contains("line 2"));
+    }
+
+    @Test
+    void loadTasks_duplicateTask_exceptionThrown() throws IOException {
+        Path dataFile = tempDirectory.resolve("userdata.txt");
+        String invalidContent = "T | 0 | read book" + System.lineSeparator()
+                + "T | 1 | READ BOOK";
+        Files.writeString(dataFile, invalidContent, StandardCharsets.UTF_8);
+        Storage storage = new Storage(dataFile);
+
+        YukiException exception = assertThrows(YukiException.class, storage::loadTasks);
+        assertThrows(YukiException.class, () ->
+                storage.saveTasks(List.of(new ToDo("replacement"))));
+
+        assertAll(() -> assertTrue(exception.getMessage().contains("duplicates")), () ->
+                assertEquals(invalidContent, Files.readString(dataFile, StandardCharsets.UTF_8)));
+    }
+
+    @Test
+    void saveTasks_parentPathIsFile_exceptionThrownWithoutChangingParent() throws IOException {
+        Path parentFile = tempDirectory.resolve("not-a-folder");
+        Files.writeString(parentFile, "keep me", StandardCharsets.UTF_8);
+        Storage storage = new Storage(parentFile.resolve("userdata.txt"));
+
+        assertThrows(YukiException.class, () ->
+                storage.saveTasks(List.of(new ToDo("read book"))));
+        assertEquals("keep me", Files.readString(parentFile, StandardCharsets.UTF_8));
+    }
 }

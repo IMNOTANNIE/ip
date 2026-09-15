@@ -2,6 +2,27 @@
 
 Yuki is a task manager that accepts commands through its graphical or command-line interface.
 
+## Entering tasks safely
+
+Yuki ignores leading and trailing spaces and accepts multiple spaces between command parts. For
+example, `deadline   submit report   /by   26/8/2026 1800` is valid. Descriptions are stored with
+single spaces so that an accidental spacing difference does not create a duplicate task.
+
+Yuki recognizes dates written as `d/M/yyyy` or `d/M/yyyy HHmm` (a colon in the time is also
+accepted). If a value cannot be parsed, including a nonexistent date such as `30/2/2026`, Yuki
+preserves it as ordinary text. When both event values are parsed dates, they must either both include
+a time or both omit it, and the event's end must be later than its start.
+
+Each deadline must contain exactly one `/by` parameter. Each event must contain exactly one `/from`
+and one `/to` parameter, in that order. Yuki also rejects duplicate tasks and invalid task numbers
+instead of changing the task list.
+
+If the data file is missing, Yuki starts with an empty task list and creates the file when a task is
+saved. If the file is unreadable or contains invalid data, Yuki reports the problem and continues to
+accept read-only commands. It blocks saves until the file is repaired or moved and Yuki is restarted,
+which prevents unreadable data from being overwritten accidentally. Saves use a temporary file so
+that an interrupted write does not partly overwrite the last valid task list.
+
 ## Viewing upcoming tasks
 
 Enter `reminders` to list incomplete deadlines and events that are due within the next 24 hours.

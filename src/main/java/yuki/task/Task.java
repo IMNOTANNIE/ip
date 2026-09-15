@@ -1,5 +1,7 @@
 package yuki.task;
 
+import java.util.Objects;
+
 /**
  * Represents a task in Yuki's task list, including its description and completion status.
  */
@@ -15,6 +17,13 @@ public class Task {
      * @param description The text describing the task.
      */
     public Task(String description) {
+        Objects.requireNonNull(description, "description must not be null");
+        if (description.isBlank()) {
+            throw new IllegalArgumentException("A task description must not be blank");
+        }
+        if (description.chars().anyMatch(Character::isISOControl)) {
+            throw new IllegalArgumentException("A task description must not contain control characters");
+        }
         this.description = description;
         this.isDone = false;
     }
@@ -53,6 +62,21 @@ public class Task {
     /** Marks this task as not completed. */
     public void markAsNotDone() {
         isDone = false;
+    }
+
+    /**
+     * Returns whether another task has the same type and user-entered details.
+     *
+     * <p>Completion status is deliberately ignored so that marking a task does
+     * not make an otherwise identical task unique.</p>
+     *
+     * @param other Task to compare with this task.
+     * @return The value {@code true} if both tasks have the same details.
+     */
+    public boolean hasSameDetails(Task other) {
+        return other != null
+                && getClass().equals(other.getClass())
+                && description.equalsIgnoreCase(other.description);
     }
 
     /**

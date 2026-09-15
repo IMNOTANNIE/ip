@@ -1,5 +1,7 @@
 package yuki.task;
 
+import java.util.Objects;
+
 import yuki.time.DateTimeParser;
 import yuki.time.TaskDateTime;
 
@@ -21,8 +23,11 @@ public class Event extends Task {
      */
     public Event(String description, TaskDateTime from, TaskDateTime to) {
         super(description);
-        this.from = from;
-        this.to = to;
+        this.from = Objects.requireNonNull(from, "event start must not be null");
+        this.to = Objects.requireNonNull(to, "event end must not be null");
+        if (from.hasComparableType(to) && !from.isBefore(to)) {
+            throw new IllegalArgumentException("An event must end after it starts");
+        }
     }
 
     /**
@@ -41,6 +46,14 @@ public class Event extends Task {
      */
     public TaskDateTime getTo() {
         return to;
+    }
+
+    /** Returns whether another event has the same description, start, and end. */
+    @Override
+    public boolean hasSameDetails(Task other) {
+        return super.hasSameDetails(other)
+                && from.hasSameValueAs(((Event) other).from)
+                && to.hasSameValueAs(((Event) other).to);
     }
 
     /**

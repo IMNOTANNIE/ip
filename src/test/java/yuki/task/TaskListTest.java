@@ -30,6 +30,16 @@ class TaskListTest {
     }
 
     @Test
+    void addTask_sameDetailsIgnoringCase_exceptionThrown() {
+        TaskList tasks = new TaskList(List.of(new ToDo("read book")));
+
+        YukiException exception = assertThrows(YukiException.class, () ->
+                tasks.addTask(new ToDo("READ BOOK")));
+
+        assertTrue(exception.getMessage().contains("already"));
+    }
+
+    @Test
     void markAndUnmarkTask_existingTask_statusUpdated() {
         Task task = new ToDo("read book");
         TaskList tasks = new TaskList(List.of(task));
@@ -41,6 +51,17 @@ class TaskListTest {
         Task unmarkedTask = tasks.unmarkTask(1);
         assertAll(() -> assertSame(task, unmarkedTask), () ->
                 assertFalse(task.isDone()));
+    }
+
+    @Test
+    void markAndUnmarkTask_redundantStatusChange_exceptionThrown() {
+        Task task = new ToDo("read book");
+        TaskList tasks = new TaskList(List.of(task));
+
+        assertThrows(YukiException.class, () -> tasks.unmarkTask(1));
+        tasks.markTask(1);
+
+        assertThrows(YukiException.class, () -> tasks.markTask(1));
     }
 
     @Test
