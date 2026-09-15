@@ -4,6 +4,8 @@ Yuki is a desktop task manager for people who prefer typing short commands. It k
 deadlines, and events in one list, saves changes automatically, and highlights tasks due within the
 next 24 hours.
 
+![Yuki's graphical interface](Ui.png)
+
 ## Quick start
 
 1. Install [Java 25](https://www.oracle.com/java/technologies/downloads/).
@@ -156,4 +158,4 @@ blocks changes to protect the existing file. Repair or move the file, then resta
 ## AI assistance
 
 The project author used OpenAI Codex to identify potential issues in the code and to help implement
-some methods and unit tests; the author reviewed and verified the resulting changes.
+some methods and unit tests.
