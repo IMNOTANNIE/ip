@@ -134,9 +134,32 @@ class ParserTest {
     }
 
     @Test
+    void parse_taskNumberLargerThanInteger_exceptionExplainsLimit() {
+        YukiException exception = assertThrows(YukiException.class, () ->
+                Parser.parse("delete 999999999999999999999999"));
+
+        assertTrue(exception.getMessage().contains("too large"));
+    }
+
+    @Test
     void parse_nullOrMultilineCommand_exceptionThrown() {
         assertAll(() -> assertThrows(YukiException.class, () -> Parser.parse(null)), () ->
-                assertThrows(YukiException.class, () -> Parser.parse("todo first\ntodo second")));
+                assertThrows(YukiException.class, () -> Parser.parse("todo first\ntodo second")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse("todo read\u0000book")), () ->
+                assertThrows(NullPointerException.class, () ->
+                        Parser.parse("list", null)));
+    }
+
+    @Test
+    void parse_parameterAtBoundaryOrUnexpectedPosition_exceptionThrown() {
+        assertAll(() -> assertThrows(YukiException.class, () ->
+                        Parser.parse("deadline /by 2/12/2026")), () ->
+                assertThrows(YukiException.class, () ->
+                        Parser.parse("deadline submit report /by")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse(
+                        "event meeting /by noon /from 2/12/2026 /to 3/12/2026")), () ->
+                assertThrows(YukiException.class, () -> Parser.parse(
+                        "event meeting /from 2/12/2026 /to 3/12/2026 /by noon")));
     }
 
     @Test
