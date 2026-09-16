@@ -1,5 +1,7 @@
 package yuki.gui;
 
+import javafx.animation.PauseTransition;
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ScrollPane;
@@ -7,12 +9,15 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.VBox;
+import javafx.util.Duration;
 import yuki.Yuki;
 
 /**
  * Controls Yuki's main graphical interface.
  */
 public class MainWindow extends AnchorPane {
+    /** Time for which the farewell remains visible before the GUI closes. */
+    private static final double EXIT_DELAY_SECONDS = 1.0;
     /** Avatar displayed beside responses sent by Yuki. */
     private final Image yukiImage = new Image(
             getClass().getResourceAsStream("/images/YukiLogo.png"));
@@ -69,5 +74,14 @@ public class MainWindow extends AnchorPane {
                 DialogBox.getYukiDialog(yukiText, yukiImage,
                         yuki.isLastResponseError()));
         userInput.clear();
+
+        if (yuki.isExitRequested()) {
+            userInput.setDisable(true);
+            sendButton.setDisable(true);
+            PauseTransition exitDelay = new PauseTransition(
+                    Duration.seconds(EXIT_DELAY_SECONDS));
+            exitDelay.setOnFinished(event -> Platform.exit());
+            exitDelay.play();
+        }
     }
 }

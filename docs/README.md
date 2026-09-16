@@ -127,8 +127,8 @@ Example: `delete 2`
 
 ### Exiting Yuki: `bye`
 
-Ends a command-line session. In the desktop window, close Yuki using the window's close button. Your
-latest changes have already been saved.
+Displays `...Goodbye.` and ends the current session. In the desktop window, Yuki closes automatically
+shortly after displaying the farewell. Your latest changes have already been saved.
 
 Format: `bye`
 

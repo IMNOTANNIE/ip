@@ -60,6 +60,17 @@ class YukiTest {
     }
 
     @Test
+    void getResponse_exitCommand_goodbyeReturnedAndExitRequested() {
+        Yuki yuki = new Yuki(Ui.createSilentUi(), new NoOpStorage());
+
+        String response = yuki.getResponse("bye");
+
+        assertEquals("...Goodbye.", response);
+        assertTrue(yuki.isExitRequested());
+        assertFalse(yuki.isLastResponseError());
+    }
+
+    @Test
     void getResponse_saveFails_additionRolledBack() {
         Yuki yuki = new Yuki(Ui.createSilentUi(), new FailingSaveStorage());
 

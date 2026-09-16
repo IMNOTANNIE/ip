@@ -24,6 +24,8 @@ public class Yuki {
     private final Clock clock;
     /** Indicates whether the most recent GUI response reports an invalid command. */
     private boolean isLastResponseError;
+    /** Indicates whether the most recent GUI command requests that Yuki exit. */
+    private boolean isExitRequested;
     /** Loading problem to display after the user interface is ready. */
     private final String loadingErrorMessage;
 
@@ -97,9 +99,11 @@ public class Yuki {
      */
     public String getResponse(String input) {
         isLastResponseError = false;
+        isExitRequested = false;
         try {
             Command command = Parser.parse(input, clock);
             command.execute(tasks, ui, storage);
+            isExitRequested = command.isExit();
         } catch (YukiException e) {
             isLastResponseError = true;
             ui.showError(e.getMessage());
@@ -117,6 +121,11 @@ public class Yuki {
     /** Returns whether the most recent response reports an invalid command. */
     public boolean isLastResponseError() {
         return isLastResponseError;
+    }
+
+    /** Returns whether the most recent GUI command requests that Yuki exit. */
+    public boolean isExitRequested() {
+        return isExitRequested;
     }
 
     /**
