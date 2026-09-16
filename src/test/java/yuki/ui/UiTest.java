@@ -11,12 +11,16 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
 
+import yuki.task.Deadline;
+import yuki.task.Event;
 import yuki.task.Task;
 import yuki.task.ToDo;
+import yuki.time.TaskDateTime;
 
 /** Tests command-line input handling and response formatting. */
 class UiTest {
@@ -105,6 +109,38 @@ class UiTest {
         assertAll(() -> assertTrue(output.contains("---")), () ->
                 assertTrue(output.contains("...Goodbye.")), () ->
                 assertTrue(output.contains("I couldn't load the saved tasks. Broken file.")));
+    }
+
+    @Test
+    void showTaskLists_emptyLists_noTasksMessagesRecorded() {
+        Ui ui = Ui.createSilentUi();
+
+        ui.showTaskList(List.of());
+        String taskList = ui.getLastResponse();
+        ui.showMatchingTasks(List.of());
+        String matches = ui.getLastResponse();
+
+        assertAll(() -> assertEquals("...There aren't any tasks in your list.", taskList), () ->
+                assertEquals("...There aren't any matching tasks.", matches));
+    }
+
+    @Test
+    void showTaskAdded_unrecognizedReminderDates_warningIncluded() {
+        Ui ui = Ui.createSilentUi();
+        String warning = "...I couldn't recognize that date, so this task won't appear in reminders.";
+
+        ui.showTaskAdded(new Deadline("submit report", TaskDateTime.of("tomorrow night")), 1);
+        String deadlineResponse = ui.getLastResponse();
+        ui.showTaskAdded(new Event("meeting", TaskDateTime.of("next Friday"),
+                TaskDateTime.of("later")), 2);
+        String eventResponse = ui.getLastResponse();
+        ui.showTaskAdded(new Event("workshop", TaskDateTime.of(LocalDate.of(2026, 9, 18)),
+                TaskDateTime.of("until finished")), 3);
+        String eventWithRecognizedStartResponse = ui.getLastResponse();
+
+        assertAll(() -> assertTrue(deadlineResponse.endsWith(warning)), () ->
+                assertTrue(eventResponse.endsWith(warning)), () ->
+                assertFalse(eventWithRecognizedStartResponse.contains(warning)));
     }
 
     @Test

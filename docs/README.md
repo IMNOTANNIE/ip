@@ -34,8 +34,8 @@ automatically.
 
 Dates can be entered as `d/M/yyyy`, `d/M/yyyy HHmm`, or `d/M/yyyy HH:mm`.
 For example, `6/8/2026`, `6/8/2026 1800`, and `6/8/2026 18:00` are valid. You can also enter free
-text such as `Friday`, but Yuki can include a task in reminders only when its date uses a supported
-format.
+text such as `Friday`, but Yuki cannot include it in reminders. When this happens, Yuki adds the
+task and displays a warning.
 
 ## Features
 
@@ -100,9 +100,10 @@ also displays this list automatically when it starts, but stays quiet when nothi
 
 Format: `reminders`
 
-Deadlines use their due time; events use their start time. A date without a time is treated as 23:59
-on that date. To-dos, completed tasks, and dates entered as free text are not included. The displayed
-task numbers are the same as those shown by `list`.
+Deadlines use their due date, while events use their start date. A date without a time is treated as
+23:59 on that date. If the date used for reminders is not in a supported format, Yuki saves the task
+as entered but warns that it will not appear in reminders. To-dos and completed tasks are not
+included. The displayed task numbers are the same as those shown by `list`.
 
 ### Marking a task as completed: `mark`
 

@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
+import yuki.task.Deadline;
+import yuki.task.Event;
 import yuki.task.Task;
 
 /**
@@ -83,11 +85,19 @@ public class Ui {
 
     /** Displays all tasks in their current order. */
     public void showTaskList(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            showResponse("...There aren't any tasks in your list.");
+            return;
+        }
         showNumberedTaskList("Here... These are the tasks you have:", tasks);
     }
 
     /** Displays tasks whose descriptions matched a find command. */
     public void showMatchingTasks(List<Task> tasks) {
+        if (tasks.isEmpty()) {
+            showResponse("...There aren't any matching tasks.");
+            return;
+        }
         showNumberedTaskList("Here... These are the matching tasks in your list:", tasks);
     }
 
@@ -115,10 +125,14 @@ public class Ui {
 
     /** Displays confirmation that a task was added. */
     public void showTaskAdded(Task task, int taskCount) {
-        showResponse(
-                "Alright... I've added it.",
-                "  " + task,
-                "There are " + taskCount + " tasks now.");
+        List<String> lines = new ArrayList<>();
+        lines.add("Alright... I've added it.");
+        lines.add("  " + task);
+        lines.add("There are " + taskCount + " tasks now.");
+        if (hasUnrecognizedReminderDate(task)) {
+            lines.add("...I couldn't recognize that date, so this task won't appear in reminders.");
+        }
+        showResponse(lines.toArray(String[]::new));
     }
 
     /** Displays confirmation that a task was removed. */
@@ -150,6 +164,15 @@ public class Ui {
             lines.add((i + 1) + "." + tasks.get(i));
         }
         showResponse(lines.toArray(String[]::new));
+    }
+
+    /** Returns whether a dated task cannot provide the date used for reminders. */
+    private boolean hasUnrecognizedReminderDate(Task task) {
+        if (task instanceof Deadline deadline) {
+            return deadline.getBy().toReminderDateTime().isEmpty();
+        }
+        return task instanceof Event event
+                && event.getFrom().toReminderDateTime().isEmpty();
     }
 
     /** Displays one response surrounded by separator lines. */
